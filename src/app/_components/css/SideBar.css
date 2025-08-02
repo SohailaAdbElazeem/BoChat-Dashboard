@@ -1,0 +1,33 @@
+.active {
+  color: #D72229;
+  background-color: #fff;
+  position: relative;
+  z-index: 2;
+}
+
+.active::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 30%;
+  width: 55px;
+  height: 40px;
+  background-color: #fff;
+  z-index: -1;
+  padding: 5px 20px;
+  transform: translate(-30%,-50%);
+  border-radius: 15px 0 0 15px;
+  -webkit-border-radius: 15px 0 0 15px;
+  -moz-border-radius: 15px 0 0 15px;
+  -ms-border-radius: 15px 0 0 15px;
+  -o-border-radius: 15px 0 0 15px;
+  -webkit-transform: translate(-30%,-50%);
+  -moz-transform: translate(-30%,-50%);
+  -ms-transform: translate(-30%,-50%);
+  -o-transform: translate(-30%,-50%);
+}
+
+.dark .active::before {
+  background-color: #121212;
+
+}

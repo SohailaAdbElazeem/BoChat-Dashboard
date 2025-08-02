@@ -1,0 +1,6 @@
+@media (max-width:668px) {
+    .hide-this{
+        display: none ;
+        visibility: hidden ;
+    }
+}
