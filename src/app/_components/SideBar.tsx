@@ -1,7 +1,7 @@
 'use client';
-import './css/SideBar.css'
+import './css/SideBar.css';
 
-import { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   Home,
   Users,
@@ -16,42 +16,25 @@ import {
   CheckCircle,
 } from 'lucide-react';
 import Image from 'next/image';
-import GrowthReusable from '../home/_components/GrowthReusable';
+import { useState } from 'react';
 
 const navItems = [
-  { icon: <Home size={24} />, label: 'home' },
-  { icon: <Users size={24} />, label: 'users' },
-  { icon: <MessageCircle size={24} />, label: 'messages' },
-  { icon: <Mail size={24} />, label: 'inbox' },
-  { icon: <Bell size={24} />, label: 'notifications' },
-  { icon: <ThumbsUp size={24} />, label: 'likes' },
-  { icon: <CreditCard size={24} />, label: 'payments' },
-  { icon: <Search size={24} />, label: 'search' },
-  { icon: <UserX size={24} />, label: 'blocked' },
-  { icon: <Shield size={24} />, label: 'security' },
-  { icon: <CheckCircle size={24} />, label: 'verified' },
+  { icon: <Home size={24} />, label: 'home', route: '/' },
+  { icon: <Users size={24} />, label: 'users', route: '/users' },
+  { icon: <MessageCircle size={24} />, label: 'messages', route: '/messages' },
+  { icon: <Mail size={24} />, label: 'inbox', route: '/inbox' },
+  { icon: <Bell size={24} />, label: 'notifications', route: '/notifications' },
+  { icon: <ThumbsUp size={24} />, label: 'likes', route: '/likes' },
+  { icon: <CreditCard size={24} />, label: 'payments', route: '/payments' },
+  { icon: <Search size={24} />, label: 'search', route: '/search' },
+  { icon: <UserX size={24} />, label: 'blocked', route: '/blocked' },
+  { icon: <Shield size={24} />, label: 'security', route: '/security' },
+  { icon: <CheckCircle size={24} />, label: 'verified', route: '/verified' },
 ];
 
 export default function SideBar() {
-  const [active, setActive] = useState('home');
-
-  const renderContent = () => {
-    switch (active) {
-      case 'users':
-        return <GrowthReusable/>
-      case 'messages':
-        return <div>💬 Messages component</div>;
-      case 'inbox':
-        return <div>📥 Inbox component</div>;
-      case 'likes':
-        return <div>👍 Likes component</div>;
-      case 'verified':
-        return <div>✅ Verified component</div>;
-      // ...
-      default:
-        return <div>🏠 Home component</div>;
-    }
-  };
+  const router = useRouter();
+  const pathname = usePathname();
 
   return (
     <div className="flex">
@@ -60,9 +43,9 @@ export default function SideBar() {
           {navItems.map((item) => (
             <button
               key={item.label}
-              onClick={() => setActive(item.label)}
-              className={`text-white  hover:opacity-100 w-[100%] transition-transform duration-200 ${
-                active === item.label ? 'active dark:active-dark' : 'opacity-70'
+              onClick={() => router.push(item.route)}
+              className={`text-white hover:opacity-100 w-[100%] transition-transform duration-200 ${
+                pathname === item.route ? 'active dark:active-dark' : 'opacity-70'
               }`}
             >
               {item.icon}
@@ -71,19 +54,17 @@ export default function SideBar() {
         </nav>
 
         <div className="relative mb-2">
-          <div className="bg-white p-1 rounded-full">
+          <div className="active">
             <Image
               src="/imgs/avatar.png"
               alt="User Avatar"
-              width={40}
-              height={40}
+              width={30}
+              height={30}
               className="rounded-full"
             />
           </div>
         </div>
       </aside>
-
-      <div className="ml-[70px] p-8 w-full">{renderContent()}</div>
     </div>
   );
 }

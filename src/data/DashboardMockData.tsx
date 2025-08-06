@@ -5,7 +5,7 @@ export const dashboardStats = {
   activeUsers: 25,
   posts: 1200,
   tips: 3500,
-  blocked: 20000,
+  blocked: 200,
   percentage: 25.4,
 };
 
@@ -13,11 +13,7 @@ export const userGrowth = [
   { month: 'يناير', value: 1200 },
   { month: 'فبراير', value: 1800 },
   { month: 'مارس', value: 2400 },
-  { month: 'ابريل', value: 3600 },
-  { month: 'مايو', value: 3000 },
-  { month: 'يونيو', value: 2900 },
-  { month: 'يوليو', value: 3500 },
-  { month: 'اغسطس', value: 3600 },
+  { month: 'ابريل', value: 1600 },
 ];
 
 export const registrationLogs = [

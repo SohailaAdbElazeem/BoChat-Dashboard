@@ -1,9 +1,13 @@
-import LoginPage from "./login/page";
-
+'use client';
+import MainNavbar from './_components/MainNavbar';
+import SideBar from './_components/SideBar';
+import MainPage from './home/page'
 export default function Home() {
   return (
     <div>
-      <LoginPage/>
+      <MainNavbar/>
+      <MainPage/>
+      <SideBar />
     </div>
   );
 }
