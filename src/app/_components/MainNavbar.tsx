@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 function MainNavbar(){
     const router = useRouter();
-
+    
     const handleLogout = () => {
         localStorage.removeItem('token');
         router.push('/login');

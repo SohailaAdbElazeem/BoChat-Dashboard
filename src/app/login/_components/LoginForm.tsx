@@ -46,7 +46,6 @@ function LoginForm() {
       localStorage.setItem('token', data.token);
       setSuccessMsg('تم تسجيل الدخول بنجاح!');
       
-      // بعد 2 ثانية يروح لـ /home
       setTimeout(() => {
         router.push('/');
       }, 2000);
@@ -60,33 +59,29 @@ function LoginForm() {
 
   return (
     <div className="flex items-center justify-center min-h-[80vh] px-4">
-      <div className="relative w-full max-w-[500px]">
-        <div className="absolute inset-0 bg-[#D7222926] w-[600px] rounded-[14px] translate-x-[-50px] translate-y-[50px] -z-10 hide-this"></div>
-
-        <div className="login-wrapper bg-white p-8 sm:p-[60px] relative rounded-[14px] shadow-md flex flex-col items-center gap-6">
-          <h1 className="text-[#D72229] text-[22px]">تسجيل الدخول</h1>
-
-          {successMsg && (
-            <Alert variant="default" className="w-full bg-green-100 border border-green-500 text-green-700">
+           {successMsg && (
+            <Alert variant="default" className="bg-green-100 border border-green-500 text-green-700 w-[350] absolute right-[10px] top-[100px]">
               <CheckCircle className="h-4 w-4" />
               <AlertTitle>تم بنجاح</AlertTitle>
               <AlertDescription>{successMsg}</AlertDescription>
             </Alert>
           )}
-
           {errorMsg && (
-            <Alert variant="destructive" className="w-full">
+            <Alert variant="destructive" className="w-[350] absolute right-[10px] top-[100px]">
               <AlertTitle>خطأ</AlertTitle>
               <AlertDescription>{errorMsg}</AlertDescription>
             </Alert>
           )}
-
+      <div className="relative w-full max-w-[500px]">
+        <div className="absolute inset-0 bg-[#D7222926] w-[580] rounded-[14px] translate-x-[-40px] translate-y-[50px] -z-10 hide-this"></div>
+        <div className="login-wrapper bg-white p-8 sm:p-[60px] relative rounded-[14px] shadow-md flex flex-col items-center gap-6">
+          <h1 className="text-[#D72229] text-[22px]">تسجيل الدخول</h1>
           <form dir="rtl" className="w-full flex flex-col gap-4" onSubmit={handleSubmit}>
             <input
               type="text"
               value={useremail}
               onChange={(e) => setEmail(e.target.value)}
-              className="border border-[#8989a28c] px-4 pr-[30px] rounded-[14px] w-full h-[55px] focus:outline-none focus:ring-2 focus:ring-[#D7222926] focus:border-[#D72229]"
+              className="border border-[#8989a28c] px-4 pr-[30px] rounded-[14px] w-full h-[55px] focus:outline-none focus:ring-2 focus:ring-[#D7222926] focus:border-[#D72229] dark:placeholder:text-[#000]"
               placeholder="الإيميل"
               required
             />
@@ -94,7 +89,7 @@ function LoginForm() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="border border-[#8989a28c] px-4 pr-[30px] rounded-[14px] w-full h-[55px] focus:outline-none focus:ring-2 focus:ring-[#D7222926] focus:border-[#D72229]"
+              className="border border-[#8989a28c] px-4 pr-[30px] rounded-[14px] w-full h-[55px] focus:outline-none focus:ring-2 focus:ring-[#D7222926] focus:border-[#D72229] dark:placeholder:text-[#000]"
               placeholder="كلمة السر"
               required
             />
