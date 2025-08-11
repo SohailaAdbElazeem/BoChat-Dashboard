@@ -24,19 +24,19 @@ export default function UserPieStats({
   percentage,
   title = 'المستخدمين النشطين',
   sideLabel = 'اجمالي النسب',
-  colors = DEFAULT_COLORS
+  colors = DEFAULT_COLORS,
 }: Props) {
   return (
-    <div className='flex relative h-[225px] '>
-      <div className='bg-[#D72229] relative translate-x-[50px] w-[145px] h-[225px] rounded-br-[40px] rounded-tl-[40px] rounded-bl-[40px] p-2 text-white'>
+    <div className='flex relative h-[200px] bg-[#F6F6F6] rounded-[40px] shadow kpi'>
+      <div className='bg-[#D72229] relative w-[35%] rounded-br-[40px] rounded-tl-[40px] rounded-bl-[40px] p-2 text-white'>
         <h1 className='rotate-[270deg] w-fit h-fit text-[15px] absolute top-[50%] translate-y-[-50%] left-[-20%]'>
           {sideLabel}
         </h1>
         <div dir='rtl' className='text-right flex flex-col items-start'>
           {data.map((item, index) => (
             <div key={index}>
-              <p className='text-[13px]'>{item.name}</p>
-              <h1 className='text-[20px]'>
+              <p className='text-[10px]'>{item.name}</p>
+              <h1 className='text-[18px]'>
                 {item.value} <span className='text-[10px]'>شخص</span>
               </h1>
             </div>
@@ -44,7 +44,7 @@ export default function UserPieStats({
         </div>
       </div>
 
-      <div className="flex w-100 items-center justify-end bg-[#F6F6F6] dark:bg-[#f6f6f6] p-5 rounded-br-[20px] rounded-tr-[20px] shadow">
+      <div className="flex w-100 items-center justify-end ">
         <div className="flex justify-center flex-col gap-1 text-sm text-[#8989A2]" dir='rtl'>
           <h2 className="text-[17px] text-right text-[#D72229]">{title}</h2>
           {data.map((item, index) => (
@@ -55,7 +55,7 @@ export default function UserPieStats({
           ))}
         </div>
 
-        <ResponsiveContainer className={"relative"} width="30%" height={225}>
+        <ResponsiveContainer className={"relative"} width="50%" height={225}>
           <PieChart>
             <Pie
               data={data}
@@ -63,13 +63,13 @@ export default function UserPieStats({
               nameKey="name"
               cx="50%"
               cy="50%"
-              innerRadius={40}
-              outerRadius={50}
+              innerRadius={50}
+              outerRadius={60}
               startAngle={90}
               endAngle={-270}
             >
               {data.map((_, index) => (
-                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} cornerRadius={4} />
+                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} cornerRadius={3} />
               ))}
             </Pie>
             <Tooltip />

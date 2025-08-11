@@ -4,16 +4,17 @@ export const dashboardStats = {
   totalUsers: 100,
   activeUsers: 25,
   posts: 1200,
-  tips: 3500,
+  tips: 300,
   blocked: 200,
   percentage: 25.4,
 };
 
 export const userGrowth = [
-  { month: 'يناير', value: 1200 },
-  { month: 'فبراير', value: 1800 },
-  { month: 'مارس', value: 2400 },
-  { month: 'ابريل', value: 1600 },
+  { month: 'يناير', value: 800 },
+  { month: 'فبراير', value: 1000 },
+  { month: 'مارس', value: 105 },
+  { month: 'ابريل', value: 1050 },
+
 ];
 
 export const registrationLogs = [

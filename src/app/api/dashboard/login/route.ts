@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { env } from "process";
-// import { env } from "process";
 
 export async function POST(req: NextRequest) {
     const body = await req.json();
