@@ -3,7 +3,7 @@ const nextConfig = {
   images: {
     domains: [
       'picsum.photos',      
-      'i.pravatar.cc',     
+      'i.pravatar.cc',  'lh3.googleusercontent.com', 'bo-chat.space', 'bo-chat.cfd'   
     ],
   },
 };

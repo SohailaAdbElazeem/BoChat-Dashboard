@@ -7,24 +7,44 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const BASE_HTTPS = "https://bo-chat.space";
+const BASE_HTTP = "http://bo-chat.space";
 const ADMIN_EMAIL = "bo-chat@gmail.com";
 
-export default function BanForm() {
-    const [userId, setUserId] = React.useState("");   
-    const [durDays, setDurDays] = React.useState(7);
-    const [name, setName] = React.useState("");
-    const [loading, setLoading] = React.useState(false);
-    const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
-    const [successMsg, setSuccessMsg] = React.useState<string | null>(null);
+// Helpers
+async function safeFetchJSON(input: RequestInfo, init?: RequestInit) {
+  const res = await fetch(input, init);
+  const txt = await res.clone().text().catch(() => "");
+  let data: any = {};
+  try { data = txt ? JSON.parse(txt) : {}; } catch { /* non-JSON is fine */ }
+  if (!res.ok) {
+    const reason = data?.message || data?.error || `Request failed ${res.status}`;
+    throw new Error(reason);
+  }
+  return data || txt || {};
+}
 
-    const getToken = () =>
-        localStorage.getItem("token") ||
-        localStorage.getItem("auth_token") ||
-        "";
-    const buildCandidates = (days: number) => [
-        `${BASE_HTTPS}/banTill/${days}`,
-        `${BASE_HTTPS}/banTill`,
-    ];
+export default function BanForm() {
+  const [userId, setUserId] = React.useState("");
+  const [name, setName] = React.useState("");
+  const [durDays, setDurDays] = React.useState<number | "lock">(7);
+
+  const [loading, setLoading] = React.useState(false);
+  const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = React.useState<string | null>(null);
+
+  const getToken = () =>
+    localStorage.getItem("token") ||
+    localStorage.getItem("auth_token") ||
+    "";
+
+  const disabledCommon = !getToken() || !userId;
+
+  const buildBanCandidates = (days: number) => [
+    `${BASE_HTTPS}/banTill/${days}`,
+    `${BASE_HTTPS}/banTill`,
+    `${BASE_HTTP}/banTill/${days}`,
+    `${BASE_HTTP}/banTill`,
+  ];
 
   const submit = async () => {
     setErrorMsg(null);
@@ -38,54 +58,58 @@ export default function BanForm() {
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
       };
-      if (token) headers["Authorization"] = `Bearer ${token}`;
+      if (token) headers.Authorization = `Bearer ${token}`;
 
       const body = {
         userid: userId,
         adminemail: ADMIN_EMAIL,
+        name: name || undefined,
       };
 
-      const candidates = buildCandidates(durDays);
-
-      let lastErr: any = null;
-      for (const url of candidates) {
-        try {
-          const res = await fetch(url, {
-            method: "POST",
-            headers,
-            body: JSON.stringify(body),
-            mode: "cors",
-          });
-
-          const text = await res.clone().text().catch(() => "");
-          let data: any = {};
+      // لو اختار "قفل" يبقى API /pan
+      if (durDays === "lock") {
+        const candidates = [`${BASE_HTTP}/pan`, `${BASE_HTTPS}/pan`];
+        let lastErr: any = null;
+        for (const url of candidates) {
           try {
-            data = text ? JSON.parse(text) : {};
-          } catch {
-            // مش JSON — عادي
+            const data = await safeFetchJSON(url, {
+              method: "POST",
+              headers,
+              body: JSON.stringify(body),
+              mode: "cors",
+            });
+            console.log("✅ Lock success:", data);
+            setSuccessMsg("تم قفل الحساب بنجاح.");
+            return;
+          } catch (err) {
+            lastErr = err;
           }
-
-          if (!res.ok) {
-            const reason =
-              data?.message ||
-              data?.error ||
-              `Request failed ${res.status} (${url})`;
-            throw new Error(reason);
-          }
-          console.log("✅ Ban success:", data);
-          setSuccessMsg("تم حظر الحساب بنجاح.");
-          return;
-        } catch (err) {
-          lastErr = err;
         }
+        throw lastErr || new Error("فشل القفل عبر كل المسارات المحتملة");
+      } else {
+        // حظر بعدد أيام
+        const candidates = buildBanCandidates(durDays);
+        let lastErr: any = null;
+        for (const url of candidates) {
+          try {
+            const data = await safeFetchJSON(url, {
+              method: "POST",
+              headers,
+              body: JSON.stringify({ ...body, durationDays: durDays }),
+              mode: "cors",
+            });
+            console.log("✅ Ban success:", data);
+            setSuccessMsg(`تم حظر الحساب لمدة ${durDays} يوم${durDays > 1 ? "ًا" : ""} بنجاح.`);
+            return;
+          } catch (err) {
+            lastErr = err;
+          }
+        }
+        throw lastErr || new Error("فشل الحظر عبر كل المسارات المحتملة");
       }
-
-      throw lastErr || new Error("فشل الطلب لكل المسارات المحتملة");
     } catch (err) {
-      console.error("❌ Ban error:", err);
-      setErrorMsg(
-        err instanceof Error ? err.message : "حدث خطأ أثناء تنفيذ الحظر"
-      );
+      console.error("❌ Ban/Lock error:", err);
+      setErrorMsg(err instanceof Error ? err.message : "حدث خطأ أثناء التنفيذ");
     } finally {
       setLoading(false);
     }
@@ -99,19 +123,15 @@ export default function BanForm() {
 
       <div className="space-y-4">
         {errorMsg && (
-          <div className="rounded-xl bg-red-50 p-3 text-sm text-red-700">
-            {errorMsg}
-          </div>
+          <div className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{errorMsg}</div>
         )}
         {successMsg && (
-          <div className="rounded-xl bg-green-50 p-3 text-sm text-green-700">
-            {successMsg}
-          </div>
+          <div className="rounded-xl bg-green-50 p-3 text-sm text-green-700">{successMsg}</div>
         )}
 
         <div>
           <Label className="mb-1 block text-right text-sm text-gray-600">
-            اسم المستخدم
+            اسم المستخدم 
           </Label>
           <Input
             value={name}
@@ -122,9 +142,7 @@ export default function BanForm() {
         </div>
 
         <div>
-          <Label className="mb-1 block text-right text-sm text-gray-600">
-            UserId
-          </Label>
+          <Label className="mb-1 block text-right text-sm text-gray-600">UserId</Label>
           <Input
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
@@ -134,11 +152,15 @@ export default function BanForm() {
         </div>
 
         <div className="flex-1">
-          <div className="mb-2 text-right text-sm font-medium text-gray-600">
-            مدة الحظر
-          </div>
+          <div className="mb-2 text-right text-sm font-medium text-gray-600">مدة الحظر</div>
           <div className="flex flex-wrap gap-3">
-            {[1, 2, 3, 7].map((d) => {
+            {[
+              { d: 1, label: "يوم" },
+              { d: 2, label: "يومين" },
+              { d: 3, label: "ثلاثة أيام" },
+              { d: 7, label: "أسبوع" },
+              { d: 30, label: "شهر" },
+            ].map(({ d, label }) => {
               const active = d === durDays;
               return (
                 <button
@@ -146,32 +168,38 @@ export default function BanForm() {
                   type="button"
                   onClick={() => setDurDays(d)}
                   className={[
-                    "rounded-2xl px-4 py-2 text-sm transition-all",
+                    "rounded-2xl px-6 py-3 text-sm transition-all",
                     active
                       ? "ring-1 ring-[#D12D2D] text-[#D12D2D] bg-white"
                       : "bg-[#EDEDED] text-gray-600",
                   ].join(" ")}
                 >
-                  {d === 1
-                    ? "يوم"
-                    : d === 2
-                    ? "يومين"
-                    : d === 3
-                    ? "ثلاثة أيام"
-                    : "أسبوع"}
+                  {label}
                 </button>
               );
             })}
+            <button
+              type="button"
+              onClick={() => setDurDays("lock")}
+              className={[
+                "rounded-2xl px-4 py-2 text-sm transition-all",
+                durDays === "lock"
+                  ? "ring-1 ring-[#D12D2D] text-[#D12D2D] bg-white"
+                  : "bg-[#EDEDED] text-gray-600",
+              ].join(" ")}
+            >
+              قفل
+            </button>
           </div>
         </div>
 
         <Button
           onClick={submit}
-          disabled={getToken() === "" || loading}
+          disabled={disabledCommon || loading}
           className="mt-2 h-12 w-full rounded-2xl bg-[#D12D2D] text-white hover:bg-[#be2525]"
           title={getToken() ? "" : "يجب أن يكون هناك توكن في localStorage"}
         >
-          {loading ? "جارٍ الحظر…" : "حظر حساب"}
+          حظر
         </Button>
       </div>
     </div>

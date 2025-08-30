@@ -2,10 +2,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 
 const BASE = "https://bo-chat.space";
-const ADMIN_ID = "6877d5497b04a3c83759f122";
+const ADMIN_EMAIL = "bo-chat@gmail.com";
 
 type BannedUser = {
   id: string;
@@ -39,65 +39,103 @@ export function BannedCard() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
+  // حالة تحميل لكل مستخدم أثناء فك الحظر
+  const [unbanningId, setUnbanningId] = useState<string | null>(null);
+
+  const token = useMemo(
+    () =>
+      localStorage.getItem("token") ||
+      localStorage.getItem("auth_token") ||
+      "",
+    []
+  );
+
+  const headers = useMemo(() => {
+    const h: Record<string, string> = { "Content-Type": "application/json" };
+    if (token) h.Authorization = `Bearer ${token}`;
+    return h;
+  }, [token]);
+
   const fetchBanned = useCallback(async () => {
     setLoading(true);
     setErr(null);
-
-    const token =
-      localStorage.getItem("token") ||
-      localStorage.getItem("auth_token") ||
-      "";
-
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
-
-    const candidates: Array<{ url: string; method: "GET" | "POST"; body?: any }> = [
-      { url: `${BASE}/dashboard/bannedUsers?admin=${ADMIN_ID}`, method: "GET" },
-    ];
-
-    let lastErr: any = null;
-
-    for (const c of candidates) {
-      try {
-        const data = await safeFetchJSON(c.url, {
-          method: c.method,
+    try {
+      const data = await safeFetchJSON(
+        `${BASE}/dashboard/bannedUsers?admin=${encodeURIComponent(
+          ADMIN_EMAIL
+        )}`,
+        {
+          method: "GET",
           headers,
-          ...(c.method === "POST" ? { body: JSON.stringify(c.body) } : {}),
           mode: "cors",
-        });
-
-        const list = normalizeList(data);
-        console.log("✅ bannedUsers:", list);
-
-        const normalized: BannedUser[] = list.map((u: any) => ({
-          id: u?.id || u?._id || u?.userid || "—",
-          name: u?.name || u?.username || "—",
-          email: u?.email || u?.useremail || "—",
-          until: u?.until ?? u?.blockTill ?? u?.banUntil ?? "—",
-          durationMs: u?.durationMs ?? u?.banDurationMs ?? 0,
-        }));
-
-        setItems(normalized);
-        setLoading(false);
-        return;
-      } catch (e) {
-        lastErr = e;
-      }
+        }
+      );
+      const list = normalizeList(data);
+      const normalized: BannedUser[] = list.map((u: any) => ({
+        id: u?.id || u?._id || u?.userid || "—",
+        name: u?.name || u?.username || "—",
+        email: u?.email || u?.useremail || "—",
+        until: u?.until ?? u?.blockTill ?? u?.banUntil ?? "—",
+        durationMs: u?.durationMs ?? u?.banDurationMs ?? 0,
+      }));
+      setItems(normalized);
+    } catch (e: any) {
+      setErr(e?.message || "Fetch failed");
+    } finally {
+      setLoading(false);
     }
-
-    console.error("❌ bannedUsers error:", lastErr);
-    setErr(lastErr instanceof Error ? lastErr.message : "Fetch failed");
-    setLoading(false);
-  }, []);
+  }, [headers]);
 
   useEffect(() => {
     fetchBanned();
   }, [fetchBanned]);
 
+  // ✅ فك الحظر
+  const handleUnban = useCallback(
+    async (userId: string) => {
+      try {
+        setUnbanningId(userId);
+
+        // هنجرّب http ثم https، ونبعت body: { userid, adminemail }
+        const candidates = [
+          "http://bo-chat.space/unbanTill",
+          "https://bo-chat.space/unbanTill",
+        ];
+
+        let lastErr: any = null;
+        for (const url of candidates) {
+          try {
+            const data = await safeFetchJSON(url, {
+              method: "POST",
+              headers,
+              body: JSON.stringify({
+                userid: userId,
+                adminemail: ADMIN_EMAIL,
+              }),
+              mode: "cors",
+            });
+            console.log("✅ Unban success:", data);
+
+            // شيل الكارت من الواجهة بعد النجاح
+            setItems((prev) => prev.filter((u) => u.id !== userId));
+            setUnbanningId(null);
+            return;
+          } catch (err) {
+            lastErr = err;
+          }
+        }
+        throw lastErr || new Error("فشل فك الحظر عبر كل المسارات المحتملة");
+      } catch (e) {
+        console.error("❌ Unban error:", e);
+        setUnbanningId(null);
+        // ممكن تضيف toast أو رسالة لو حابب
+      }
+    },
+    [headers]
+  );
+
   return (
-    <div  dir="rtl">
+    <div dir="rtl">
       {loading && (
         <div className="rounded-xl bg-[#EDEDED] p-3 text-center text-sm text-gray-600">
           جاري التحميل…
@@ -111,35 +149,49 @@ export function BannedCard() {
       )}
 
       {!loading && !err && items.length === 0 && (
-        <div className="rounded-xl bg-[#EDEDED] p-3 text-center text-sm text-gray-600">
-          لا يوجد مستخدمون محظورون.
+        <div className="rounded-xl pt-[40px] text-center">
+          <h1 className=" text-[30px] text-[#D72229]">لا توجد حسابات محظورة</h1>
+          <p className="text-[#8989A2]">ابدأ الآن احظر أول حساب لتفعيل لوحة هذا الجزء</p> 
         </div>
       )}
+
       <div className="grid grid-cols-1 gap-4">
         {items.map((u) => (
-          <div key={u.id} className="rounded-[30px] border border-gray-200  bg-[#F6F6F6] p-4">
-            <h3 className="text-center mb-[5px] text-[#D12D2D]">معلومات الحساب</h3>
-              <div className="text-xs text-gray-500">id: {u.id}</div>
-            <div className="mb-2 flex items-center justify-between py-[15px] px-[20px] bg-[#E6E6E6] rounded-[18px]">
+          <div
+            key={u.id}
+            className="rounded-[30px]  bg-[#F6F6F6] p-4"
+          >
+            <h3 className="mb-[5px] text-center text-[#D12D2D]">
+              معلومات الحساب
+            </h3>
+            <div className="text-xs text-gray-500">id: {u.id}</div>
+
+            <div className="mb-2 flex items-center justify-between rounded-[18px] bg-[#E6E6E6] px-[20px] py-[15px]">
               <h5>الاسم:</h5>
-              <div className="text-[15px] font-semibold text-[#333]">{u.name}</div>
+              <div className="text-[15px] font-semibold text-[#333]">
+                {u.name}
+              </div>
             </div>
 
-              <div className="mb-2 flex items-center justify-between py-[15px] px-[20px] bg-[#E6E6E6] rounded-[18px] overflow-hidden">
-                <h5>الإيميل:</h5>
-                <div className="rounded-xl px-4 text-gray-700">
-                  {u.email}
-                </div>
+            <div className="mb-2 flex items-center justify-between overflow-hidden rounded-[18px] bg-[#E6E6E6] px-[20px] py-[15px]">
+              <h5>الإيميل:</h5>
+              <div className="rounded-xl px-4 text-gray-700">{u.email}</div>
+            </div>
+
+            <div className="mb-2 flex items-center justify-between overflow-hidden rounded-[18px] bg-[#D72229]/10 px-[20px] py-[15px]">
+              <div className="text-xs text-right text-gray-500">مدة الحظر:</div>
+              <div className="rounded-xl px-4 text-[#D12D2D]">
+                {String(u.until)}
               </div>
-              <div className="mb-2 flex items-center justify-between py-[15px] px-[20px] bg-[#D72229]/10 rounded-[18px] overflow-hidden">
-                <div className="text-xs text-right text-gray-500">مدة الحظر:</div>
-                <div className="rounded-xl  px-4 text-[#D12D2D]">
-                  {String(u.until)}
-                </div>
-              </div>
+            </div>
+
             <div className="px-[50px]">
-              <Button className="mt-[10px] !py-[22px] w-full rounded-[20px] bg-[#D72229] text-white hover:bg-[#be2525]">
-                إلغاء الحظر
+              <Button
+                onClick={() => handleUnban(u.id)}
+                disabled={unbanningId === u.id}
+                className="mt-[10px] !py-[25px] w-full rounded-[20px] bg-[#D72229] text-white text-[18px] hover:bg-[#be2525] disabled:opacity-60"
+              >
+                {unbanningId === u.id ? "جارٍ فك الحظر…" : "إلغاء الحظر"}
               </Button>
             </div>
           </div>

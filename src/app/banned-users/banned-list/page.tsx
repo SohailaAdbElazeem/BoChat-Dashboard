@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useMemo, useState } from 'react';
-import FilterBar, { type Filters } from '@/app/_components/FilterBar'; // عدّل المسار حسب مشروعك
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import FilterBar, { type Filters } from '@/app/_components/FilterBar';
+import { Button } from '@/components/ui/button';
 
 /** نفس النوع المستخدم في FilterBar */
 export type RegistrationRow = {
@@ -16,85 +18,54 @@ export type RegistrationRow = {
   role?: 'user' | 'admin' | string;
 
   /** حقول خاصة بواجهة الحظر */
-  banDurationLabel: string;     // مثال: "أسبوع" / "يومين" / "شهر"
-  unbanned?: boolean;           // لو اتعمل Unban محليًا
+  banDurationLabel: string; // مثال: "أسبوع" / "يومين" / "شهر"
+  unbanned?: boolean;
 };
 
-/* -------- Fake data (بدّل لاحقًا ببيانات API) -------- */
-const FAKE_ROWS: RegistrationRow[] = [
-  {
-    id: 'U-1001',
-    userName: 'عبدالله محمد',
-    emailOrPhone: 'Abdallahsayed23@gmail.com',
-    type: 'Email',
-    status: 'blocked',
-    country: 'مصر',
-    governorate: 'الجيزة',
-    gender: 'ذكر',
-    role: 'user',
-    banDurationLabel: 'يومين',
-  },
-  {
-    id: 'U-1002',
-    userName: 'عبدالعزيز محمد',
-    emailOrPhone: 'Abdallahsayed23@gmail.com',
-    type: 'Email',
-    status: 'blocked',
-    country: 'مصر',
-    governorate: 'القاهرة',
-    gender: 'ذكر',
-    role: 'user',
-    banDurationLabel: 'أسبوع',
-  },
-  {
-    id: 'U-1003',
-    userName: 'عبدالله محمد',
-    emailOrPhone: 'Abdallahsayed23@gmail.com',
-    type: 'Phone',
-    status: 'blocked',
-    country: 'السعودية',
-    governorate: 'الرياض',
-    gender: 'ذكر',
-    role: 'user',
-    banDurationLabel: 'أسبوع',
-  },
-  {
-    id: 'U-1004',
-    userName: 'أحمد علي',
-    emailOrPhone: 'ahmed@example.com',
-    type: 'Google',
-    status: 'blocked',
-    country: 'مصر',
-    governorate: 'الإسكندرية',
-    gender: 'ذكر',
-    role: 'user',
-    banDurationLabel: 'يوم',
-  },
-  {
-    id: 'U-1005',
-    userName: 'مريم حسن',
-    emailOrPhone: 'mariam@example.com',
-    type: 'Email',
-    status: 'blocked',
-    country: 'مصر',
-    governorate: 'القاهرة',
-    gender: 'أنثى',
-    role: 'user',
-    banDurationLabel: 'أسبوع',
-  },
-  {
-    id: 'U-1006',
-    userName: 'سارة سمير',
-    emailOrPhone: 'sara@example.com',
-    type: 'Phone',
-    status: 'blocked',
-    country: 'مصر',
-    governorate: 'بني سويف',
-    gender: 'أنثى',
-    role: 'user',
-    banDurationLabel: '3 أيام',
-  },
-];
+const ENDPOINT_LIST = 'https://bo-chat.space/dashboard/bannedUsers';
+const ENDPOINT_UNBAN = 'https://bo-chat.space/unbanTill';
+const ADMIN_EMAIL = 'bo-chat@gmail.com';
+
+/* ===== Helpers ===== */
+
+async function safeFetchJSON(input: RequestInfo, init?: RequestInit) {
+  const res = await fetch(input, init);
+  const txt = await res.clone().text().catch(() => '');
+  let data: any = {};
+  try {
+    data = txt ? JSON.parse(txt) : {};
+  } catch {
+    /* ممكن يكون نص */
+  }
+  if (!res.ok) {
+    const reason = data?.message || data?.error || `Fetch failed ${res.status}`;
+    throw new Error(reason);
+  }
+  return data || {};
+}
+
+function normalizeToArray(data: any): any[] {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data.data)) return data.data;
+  if (Array.isArray(data.users)) return data.users;
+  return [data]; // fallback: عنصر واحد
+}
+
+/* عرض مدة الحظر كـ label أنيق */
+function msToLabel(ms?: number): string {
+  if (!ms || ms <= 0) return '';
+  const d = Math.floor(ms / (24 * 60 * 60 * 1000));
+  const h = Math.floor((ms % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+  if (d >= 30) return 'شهر';
+  if (d >= 7 && d % 7 === 0) return 'أسبوع';
+  if (d === 3) return 'ثلاثة أيام';
+  if (d === 2) return 'يومين';
+  if (d === 1) return 'يوم';
+  if (d > 0) return `${d} يوم`;
+  if (h > 0) return `${h} ساعة`;
+  return `${Math.floor(ms / 60000)} دقيقة`;
+}
 
 /* نفس دالة التطبيع الموجودة جوه FilterBar لضمان تطابق الفلترة */
 const norm = (v: unknown) =>
@@ -117,17 +88,19 @@ function applyFilters(rows: RegistrationRow[], filters: Filters) {
     if (filters.role && r.role !== filters.role) return false;
 
     if (!q) return true;
-    const hay = norm([
-      r.userName,
-      r.emailOrPhone,
-      r.id,
-      r.type,
-      r.status,
-      r.country,
-      r.governorate,
-      r.gender,
-      r.role,
-    ].join(' '));
+    const hay = norm(
+      [
+        r.userName,
+        r.emailOrPhone,
+        r.id,
+        r.type,
+        r.status,
+        r.country,
+        r.governorate,
+        r.gender,
+        r.role,
+      ].join(' '),
+    );
     return hay.includes(q);
   });
 }
@@ -136,9 +109,11 @@ function applyFilters(rows: RegistrationRow[], filters: Filters) {
 function BlockCard({
   row,
   onUnban,
+  unbanning,
 }: {
   row: RegistrationRow;
   onUnban: (id: string) => void;
+  unbanning: boolean;
 }) {
   const fieldBox =
     'h-9 w-full rounded-xl bg-[#EDEDED] text-[13px] text-[#7A7A7A] flex items-center px-3';
@@ -146,72 +121,176 @@ function BlockCard({
     <div className="rounded-[24px] bg-[#F6F6F6] p-5 shadow-sm border  border-[#F0F0F0]">
       <div className="text-center text-[#E73E3E] font-semibold mb-4">معلومات الحساب</div>
 
-      <div className="space-y-2">
+      <div className="space-y-2" dir='rtl'>
         <div className={fieldBox}>
+          <span className="ms-auto text-[#B1B1B1]">الايميل: </span>
           <span className="truncate">{row.emailOrPhone}</span>
-          <span className="ms-auto text-[#B1B1B1]">البريد</span>
         </div>
         <div className={fieldBox}>
+          <span className="ms-auto text-[#B1B1B1]">الاسم: </span>
           <span className="truncate">{row.userName}</span>
-          <span className="ms-auto text-[#B1B1B1]">الاسم</span>
         </div>
         <div className={`${fieldBox} !bg-[#d7222942]`}>
+          <span className="ms-auto text-[#B1B1B1]">مدة الحظر: </span>
           <span className="truncate">{row.banDurationLabel}</span>
-          <span className="ms-auto text-[#B1B1B1]">مدة الحظر</span>
         </div>
       </div>
 
       <button
-        disabled={row.unbanned}
+        disabled={row.unbanned || unbanning}
         onClick={() => onUnban(row.id)}
         className={[
           'mt-4 h-10 w-full rounded-[14px] text-white font-medium transition',
-          row.unbanned
-            ? 'bg-[#FFF] !text-[#E02020] cursor-default'
+          row.unbanned || unbanning
+            ? 'bg-[#FFF] !text-[#E02020] cursor-default opacity-60'
             : 'bg-[#E02020] hover:opacity-90',
         ].join(' ')}
       >
-        {row.unbanned ? 'تم إلغاء الحظر' : 'إلغاء الحظر'}
+        {row.unbanned ? 'تم إلغاء الحظر' : unbanning ? 'جارٍ فك الحظر…' : 'إلغاء الحظر'}
       </button>
     </div>
   );
 }
 
 export default function BlockedAccountsPage() {
-  // عادة هتجيب الداتا من API وتخزنها في state
-  const [rows, setRows] = useState<RegistrationRow[]>(FAKE_ROWS);
+  const [rows, setRows] = useState<RegistrationRow[]>([]);
   const [filters, setFilters] = useState<Filters>({
     query: '',
-    status: 'blocked', // افتراضيًا بنعرض المحظورين
+    status: 'blocked',
   });
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const token = useMemo(
+    () =>
+      localStorage.getItem('token') ||
+      localStorage.getItem('auth_token') ||
+      '',
+    [],
+  );
+
+  const headers = useMemo(() => {
+    const h: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) h.Authorization = `Bearer ${token}`;
+    return h;
+  }, [token]);
+
+  /* تحويل عنصر API إلى RegistrationRow */
+  const mapToRow = useCallback((u: any): RegistrationRow => {
+    const id = u?.id || u?._id || u?.userid || '—';
+    const name = u?.name || u?.username || '—';
+    const email = u?.email || u?.useremail || '—';
+    const durationMs = u?.durationMs ?? u?.banDurationMs ?? 0;
+    const until = u?.until ?? u?.blockTill ?? u?.banUntil ?? null;
+
+    return {
+      id,
+      userName: name,
+      emailOrPhone: email,
+      type: u?.type || 'Email',
+      status: 'blocked',
+      country: u?.country,
+      governorate: u?.governorate,
+      gender: u?.gender,
+      role: u?.role || 'user',
+      banDurationLabel: msToLabel(Number(durationMs)) || String(until),
+    };
+  }, []);
+
+  /* جلب المحظورين */
+  const fetchBanned = useCallback(async () => {
+    setLoading(true);
+    setErr(null);
+    try {
+      const data = await safeFetchJSON(ENDPOINT_LIST, {
+        method: 'GET',
+        headers,
+        mode: 'cors',
+      });
+      const list = normalizeToArray(data);
+      const mapped = list.map(mapToRow);
+      setRows(mapped);
+    } catch (e: any) {
+      console.error('❌ bannedUsers error:', e);
+      setErr(e?.message || 'Fetch failed');
+    } finally {
+      setLoading(false);
+    }
+  }, [headers, mapToRow]);
+
+  useEffect(() => {
+    fetchBanned();
+  }, [fetchBanned]);
+
+  /* فك الحظر */
+  const handleUnban = useCallback(
+    async (id: string) => {
+      try {
+        setBusyId(id);
+        // payload الشائع عندك (userid + adminemail)
+        const body = { userid: id, adminemail: ADMIN_EMAIL };
+
+        await safeFetchJSON(ENDPOINT_UNBAN, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(body),
+          mode: 'cors',
+        });
+
+        // تحديث الواجهة: إمّا نشيل الكارت، أو نعلّم عليه unbanned
+        setRows((prev) =>
+          prev
+            .filter((r) => r.id !== id) // شيله
+            .map((r) => (r.id === id ? { ...r, unbanned: true, status: 'active' } : r)),
+        );
+      } catch (e) {
+        console.error('❌ unban error:', e);
+        // ممكن تضيف Toast/Alert حسب نظامك
+      } finally {
+        setBusyId(null);
+      }
+    },
+    [headers],
+  );
 
   const filtered = useMemo(() => applyFilters(rows, filters), [rows, filters]);
-
-  const handleUnban = async (id: string) => {
-    // هنا تقدر تنادي API:
-    // await fetch('/api/unban', { method:'POST', body: JSON.stringify({ id }) })
-    setRows((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, unbanned: true, status: 'active' } : r)),
-    );
-  };
 
   return (
     <main className="py-6 pr-[10px] ">
       {/* شريط الفلاتر */}
-      <div className="mb-6" dir='rtl'>
+      <div className="mb-6" dir="rtl">
         <FilterBar rows={rows} filters={filters} onChange={setFilters} />
       </div>
 
       {/* العنوان */}
-      <div className="mb-4 text-[#E02020] font-semibold text-lg text-end">الحسابات المحظورة</div>
+      <div className="mb-4 text-[#E02020] font-semibold text-lg text-end">
+        الحسابات المحظورة
+      </div>
 
-      {/* الشبكة */}
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3  !pl-[80px]">
+      {/* حالات التحميل/الخطأ */}
+      {loading && (
+        <div className="mb-4 rounded-2xl bg-[#EDEDED] p-4 text-center text-sm text-gray-600">
+          جاري التحميل…
+        </div>
+      )}
+      {err && (
+        <div className="mb-4 rounded-2xl bg-red-50 p-4 text-center text-sm text-red-700">
+          {err}
+        </div>
+      )}
+
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 !pl-[80px]">
         {filtered.map((row) => (
-          <BlockCard key={row.id} row={row} onUnban={handleUnban} />
+          <BlockCard
+            key={row.id}
+            row={row}
+            onUnban={handleUnban}
+            unbanning={busyId === row.id}
+          />
         ))}
 
-        {filtered.length === 0 && (
+        {!loading && !err && filtered.length === 0 && (
           <div className="col-span-full flex items-center justify-center rounded-2xl bg-white p-10 text-[#8F8F8F] border border-[#F0F0F0]">
             لا توجد نتائج مطابقة للفلتر الحالي.
           </div>
