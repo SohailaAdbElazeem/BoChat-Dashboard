@@ -16,20 +16,16 @@ function MainNavbar(){
   const navRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    // احسب ارتفاع الناف للتعويض لما تبقى fixed
     if (navRef.current) setNavH(navRef.current.offsetHeight);
 
     const onScroll = () => {
       const y = window.scrollY;
 
-      // الخلفية البلور لما ننزل شوية
       setBlurBg(y > 5);
 
-      // لو بننزل لتحت وبعد 80px: خليه fixed
       if (y > prevY.current && y > 80) {
         setIsFixed(true);
       } else if (y < prevY.current || y <= 80) {
-        // لما نطلع لفوق أو نقرّب من فوق: رجّعها relative
         setIsFixed(false);
       }
 
@@ -68,11 +64,23 @@ function MainNavbar(){
             <p className="text-[#fff] text-[14px]">Abdallahsayed23@gmail.com</p>
             <img src="/imgs/avatar.png" className="absolute img-avatar" width={50} alt="" />
           </div>
+          <div className="flex gap-3">
+            <div className="flex items-center justify-center rounded-[23px] bg-[#D72229] py-[8px] px-[20px] relative">
+              <a href={"/add-screen"}>
+                <img src="/imgs/notification.svg" alt="not" srcSet="" />
+              </a>
+            </div>
+            <div className="flex items-center justify-center rounded-[23px] bg-[#D72229] py-[8px] px-[18px] relative">
+              <a href={"/add-notification"}>
+                <img src="/imgs/screen.svg" alt="not" srcSet="" />
+              </a>
+            </div>
+          </div>
+
         </div>
 
         <div className="px-10 flex gap-3 items-center">
-          <button className="flex items-center gap-1 px-3 py-2 rounded-full bg-red-100 text-red-600 text-sm font-medium">
-            {/* … أيقونات اللغة … */}
+          <button className="flex items-center gap-1 px-3 py-2 rounded-full bg-red-100 text-red-600 text-sm ">
             <span>AR</span>
           </button>
 

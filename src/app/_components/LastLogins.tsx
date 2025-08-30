@@ -5,6 +5,14 @@ import Image from 'next/image';
 import { useMemo, useState } from 'react';
 
 export type RegistrationRow = {
+  no: Key | null | undefined;
+  postImages: any;
+  comments: ReactNode;
+  likes: ReactNode;
+  publishedAgo: ReactNode;
+  avatar: string | StaticImport;
+  views: ReactNode;
+  postType: ReactNode;
   governorate: string;
   gender: string;
   role: string;

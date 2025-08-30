@@ -6,6 +6,7 @@ import { dashboardStats, userGrowth } from '@/data/DashboardMockData';
 import UserGrowthStats from '../_components/UserGrowthStats';
 import CustomChart from '../_components/CustomChart';
 import LastLogins, { RegistrationRow } from '../_components/LastLogins';
+import ActionBar from '../_components/ActionBar';
 
 function MainPage() {
   const pieData = [
@@ -30,7 +31,15 @@ const rows: RegistrationRow[] = [
     governorate: '',
     gender: '',
     role: '',
-    country: undefined
+    country: undefined,
+    no: undefined,
+    postImages: undefined,
+    comments: undefined,
+    likes: undefined,
+    publishedAgo: undefined,
+    avatar: undefined,
+    views: undefined,
+    postType: undefined
   },
   {
     index: 2,
@@ -44,7 +53,15 @@ const rows: RegistrationRow[] = [
     governorate: '',
     gender: '',
     role: '',
-    country: undefined
+    country: undefined,
+    no: undefined,
+    postImages: undefined,
+    comments: undefined,
+    likes: undefined,
+    publishedAgo: undefined,
+    avatar: undefined,
+    views: undefined,
+    postType: undefined
   },
   {
     index: 3,
@@ -58,7 +75,15 @@ const rows: RegistrationRow[] = [
     governorate: '',
     gender: '',
     role: '',
-    country: undefined
+    country: undefined,
+    no: undefined,
+    postImages: undefined,
+    comments: undefined,
+    likes: undefined,
+    publishedAgo: undefined,
+    avatar: undefined,
+    views: undefined,
+    postType: undefined
   },
     {
       index: 12,
@@ -72,7 +97,15 @@ const rows: RegistrationRow[] = [
       governorate: '',
       gender: '',
       role: '',
-      country: undefined
+      country: undefined,
+      no: undefined,
+      postImages: undefined,
+      comments: undefined,
+      likes: undefined,
+      publishedAgo: undefined,
+      avatar: undefined,
+      views: undefined,
+      postType: undefined
     },
   {
     index: 23,
@@ -86,7 +119,15 @@ const rows: RegistrationRow[] = [
     governorate: '',
     gender: '',
     role: '',
-    country: undefined
+    country: undefined,
+    no: undefined,
+    postImages: undefined,
+    comments: undefined,
+    likes: undefined,
+    publishedAgo: undefined,
+    avatar: undefined,
+    views: undefined,
+    postType: undefined
   },
   {
     index: 34,
@@ -100,7 +141,15 @@ const rows: RegistrationRow[] = [
     governorate: '',
     gender: '',
     role: '',
-    country: undefined
+    country: undefined,
+    no: undefined,
+    postImages: undefined,
+    comments: undefined,
+    likes: undefined,
+    publishedAgo: undefined,
+    avatar: undefined,
+    views: undefined,
+    postType: undefined
   },
     {
       index: 15,
@@ -114,7 +163,15 @@ const rows: RegistrationRow[] = [
       governorate: '',
       gender: '',
       role: '',
-      country: undefined
+      country: undefined,
+      no: undefined,
+      postImages: undefined,
+      comments: undefined,
+      likes: undefined,
+      publishedAgo: undefined,
+      avatar: undefined,
+      views: undefined,
+      postType: undefined
     },
   {
     index: 26,
@@ -128,7 +185,15 @@ const rows: RegistrationRow[] = [
     governorate: '',
     gender: '',
     role: '',
-    country: undefined
+    country: undefined,
+    no: undefined,
+    postImages: undefined,
+    comments: undefined,
+    likes: undefined,
+    publishedAgo: undefined,
+    avatar: undefined,
+    views: undefined,
+    postType: undefined
   },
   {
     index: 37,
@@ -142,7 +207,15 @@ const rows: RegistrationRow[] = [
     governorate: '',
     gender: '',
     role: '',
-    country: undefined
+    country: undefined,
+    no: undefined,
+    postImages: undefined,
+    comments: undefined,
+    likes: undefined,
+    publishedAgo: undefined,
+    avatar: undefined,
+    views: undefined,
+    postType: undefined
   },
     {
       index: 18,
@@ -156,7 +229,15 @@ const rows: RegistrationRow[] = [
       governorate: '',
       gender: '',
       role: '',
-      country: undefined
+      country: undefined,
+      no: undefined,
+      postImages: undefined,
+      comments: undefined,
+      likes: undefined,
+      publishedAgo: undefined,
+      avatar: undefined,
+      views: undefined,
+      postType: undefined
     },
   {
     index: 29,
@@ -170,7 +251,15 @@ const rows: RegistrationRow[] = [
     governorate: '',
     gender: '',
     role: '',
-    country: undefined
+    country: undefined,
+    no: undefined,
+    postImages: undefined,
+    comments: undefined,
+    likes: undefined,
+    publishedAgo: undefined,
+    avatar: undefined,
+    views: undefined,
+    postType: undefined
   },
   {
     index: 30,
@@ -184,36 +273,45 @@ const rows: RegistrationRow[] = [
     governorate: '',
     gender: '',
     role: '',
-    country: undefined
+    country: undefined,
+    no: undefined,
+    postImages: undefined,
+    comments: undefined,
+    likes: undefined,
+    publishedAgo: undefined,
+    avatar: undefined,
+    views: undefined,
+    postType: undefined
   },
 ];
 
   return (
 <RequireAuth>
-  <main className="container main-page">
-    <div className="charts-container">
-      <DashboardCharts
-        data={pieData}
-        percentage={percentage}
-      />
-
-      <UserGrowthStats
-        data={userGrowth}
-        title="نمو المستخدمين حسب الأشهر"
-        sideLabel="عدد المستخدمين"
-      />
-
-
-      <LastLogins
-        rows={rows}
-        onRowClick={(r) => console.log('row clicked', r)}
-      />
+  <div className="container main-page">
+    <div >
+      <div className='mb-[15px]'>
+        <ActionBar/>
+      </div>
+      <div className='charts-container'>
+        <DashboardCharts
+          data={pieData}
+          percentage={percentage}
+        />
+        <UserGrowthStats
+          data={userGrowth}
+          title="نمو المستخدمين حسب الأشهر"
+          sideLabel="عدد المستخدمين"
+        />
+        <LastLogins
+          rows={rows}
+          onRowClick={(r) => console.log('row clicked', r)}
+        />
+      </div>
     </div>
-
     <aside className="right-col">
       <CustomChart />
     </aside>
-  </main>
+  </div>
 </RequireAuth>
 
   );

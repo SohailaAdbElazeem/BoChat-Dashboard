@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { CheckCircle, XCircle, Eye, EyeOff } from 'lucide-react';
-import { Alert, AlertDescription } from "@/components/ui/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import './css/LoginForm.css';
 import { useRouter } from 'next/navigation';
 

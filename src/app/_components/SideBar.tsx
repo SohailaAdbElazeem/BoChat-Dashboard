@@ -26,9 +26,9 @@ const navItems = [
   { icon: <ThumbsUp size={24} />, label: 'likes', route: '/likes' },
   { icon: <ClipboardType size={24} />, label: 'posts', route: '/posts' },
   { icon: <Search size={24} />, label: 'search', route: '/search' },
-  { icon: <UserX size={24} />, label: 'blocked', route: '/blocked' },
-  { icon: <Shield size={24} />, label: 'security', route: '/security' },
-  { icon: <CheckCircle size={24} />, label: 'verified', route: '/verified' },
+  { icon: <UserX size={24} />, label: 'banned-users', route: '/banned-users' },
+  { icon: <Shield size={24} />, label: 'shields', route: '/shields' },
+  { icon: <CheckCircle size={24} />, label: 'verification', route: '/verification' },
 ];
 
 export default function SideBar() {

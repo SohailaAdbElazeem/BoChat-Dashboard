@@ -2,7 +2,7 @@
 import { useMemo } from 'react';
 import { RegistrationRow } from './LastLogins';
 import { Search } from 'lucide-react';
-import FilterSelect from '../../components/ui/ui/FilterSelect';
+import FilterSelect from '../../components/ui/FilterSelect';
 
 export type Filters = {
   query: string;
