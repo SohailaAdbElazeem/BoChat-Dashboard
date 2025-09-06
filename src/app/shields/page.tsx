@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import UserPieStats from '../_components/DashboardCharts';
+import UserPieStats from '../_components/UserPieStats';
 import UserGrowthMultiStats from '../_components/UserGrowthMultiStats';
 import CustomChart from '../_components/CustomChart';
 import { Search } from 'lucide-react';

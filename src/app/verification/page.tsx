@@ -6,7 +6,7 @@ import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import UserGrowthMultiStats from '../_components/UserGrowthMultiStats';
 import CustomChart from '../_components/CustomChart';
-import UserPieStats from '../_components/DashboardCharts';
+import UserPieStats from '../_components/UserPieStats';
 
 type Account = { id: string; name: string; email: string };
 

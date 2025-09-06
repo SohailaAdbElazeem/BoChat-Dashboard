@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { RegistrationRow } from './LastLogins';
+import { RegistrationRow } from '../../_components/LastLogins';
 
 type Props = {
   title?: string;

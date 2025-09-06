@@ -42,9 +42,9 @@ export default function UserGrowthStats({
         </div>
       </div>
 
-      <div className="flex relative flex-col items-center justify-end py-2 rounded-br-[40px] rounded-tr-[40px] flex-1">
-        <h2 className="text-[15px] text-center text-[#D72229]">{title}</h2>
-        <ResponsiveContainer className="relative flex items-center" width={320}>
+      <div className="flex relative flex-col items-center justify-end rounded-br-[40px] rounded-tr-[40px] flex-1">
+        <h2 className="text-[15px] text-center text-[#D72229] mb-[10px]">{title}</h2>
+        <ResponsiveContainer className="relative flex items-center" width={320} height={140}>
           <LineChart data={data}>
             <Line type="monotone" dot={false} dataKey="value" stroke={lineColor} strokeWidth={2} />
           </LineChart>

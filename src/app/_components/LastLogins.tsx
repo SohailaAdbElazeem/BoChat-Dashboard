@@ -30,13 +30,13 @@ export type RegistrationRow = {
   userName: string;
   emailOrPhone: string;
   type: 'جوجل' | 'فيسبوك' | 'انشاء حساب';
-  birthDate: string; // هنستخدمها لعرض lastLogIn
+  birthDate: string;
   status: 'نشط' | 'غير نشط';
 };
 
 type Props = {
   title?: string;
-  rows?: RegistrationRow[]; // اختياري: لو هتعدّي بيانات جاهزة
+  rows?: RegistrationRow[];
   onRowClick?: (row: RegistrationRow) => void;
 };
 
@@ -54,7 +54,6 @@ const typeClasses = (t: RegistrationRow['type']) => {
   }
 };
 
-// ================= Helpers =================
 async function safeFetchJSON(input: RequestInfo, init?: RequestInit) {
   const res = await fetch(input, init);
   const txt = await res.clone().text().catch(() => '');
@@ -62,7 +61,6 @@ async function safeFetchJSON(input: RequestInfo, init?: RequestInit) {
   try {
     data = txt ? JSON.parse(txt) : {};
   } catch {
-    /* non-JSON is ok */
   }
   if (!res.ok) {
     const reason = data?.message || data?.error || `Fetch failed ${res.status}`;
@@ -86,7 +84,6 @@ const norm = (v: unknown) =>
     .trim()
     .normalize('NFKD');
 
-// ================= Component =================
 export default function LastLogins({
   title = 'آخر عمليات تسجيل الدخول',
   rows = [],
@@ -97,9 +94,9 @@ export default function LastLogins({
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  const didRun = useRef(false); // يمنع الازدواجية في StrictMode
+  const didRun = useRef(false); 
   const CACHE_KEY = 'lastLoginsCache';
-  const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 ساعة
+  const CACHE_DURATION = 24 * 60 * 60 * 1000; 
 
   const ENDPOINTS = useMemo(
     () => ['http://bo-chat.space/lastLogIn', 'https://bo-chat.space/lastLogIn'],
@@ -115,7 +112,6 @@ export default function LastLogins({
     if (didRun.current) return;
     didRun.current = true;
 
-    // لو فيه rows جاية من برّه، نستخدمها ونسيب الAPI
     if (rows && rows.length > 0) {
       setApiRows(rows);
       return;
@@ -125,7 +121,6 @@ export default function LastLogins({
       setLoading(true);
       setErr(null);
 
-      // 1) جرّب الكاش
       try {
         const cacheStr = localStorage.getItem(CACHE_KEY);
         if (cacheStr) {
@@ -138,10 +133,8 @@ export default function LastLogins({
           }
         }
       } catch {
-        // لو حصل corruption تجاهل الكاش
       }
 
-      // 2) Fetch من الAPI (لو مفيش كاش صالح)
       try {
         if (!token) {
           setErr('لا يوجد توكن للمصادقة');
@@ -198,16 +191,15 @@ export default function LastLogins({
             index: i + 1,
             avatarUrl: img,
             userName: u?.username || u?.name || '—',
-            emailOrPhone: phone || '—', // useremail مش مناسب للعرض لأنه hash
+            emailOrPhone: phone || '—', 
             type: fromProvider(u?.provider),
-            birthDate: String(u?.lastLogIn || '—'), // آخر تسجيل
+            birthDate: String(u?.lastLogIn || '—'),
             status: u?.active ? 'نشط' : 'غير نشط',
           };
         });
 
         setApiRows(mapped);
 
-        // 3) خزّن الكاش
         localStorage.setItem(
           CACHE_KEY,
           JSON.stringify({ timestamp: Date.now(), data: mapped }),
