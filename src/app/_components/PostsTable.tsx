@@ -58,13 +58,12 @@ export default function RegistrationsTable({ rows }: Props) {
                   {r.postImages?.length ? (
                     r.postImages.slice(0, 6).map((src: string | StaticImport, i: number) => (
                       <button
-                        key={src + i}
+                        key={ i}
                         className="relative h-6 w-6 overflow-hidden rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                         onClick={() => openLightbox(r.postImages, i)}
                         aria-label="عرض الصورة"
                         title="عرض الصورة"
                       >
-                        {/* ثَمَنيلز صغيرة - next/image */}
                         <Image src={src} alt="" fill className="object-cover" />
                       </button>
                     ))

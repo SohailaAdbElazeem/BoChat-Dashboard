@@ -1,27 +1,39 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
+
+const PUBLIC_ROUTES = ['/login'];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const isLoginPage = pathname === '/login';
+  // لو لسه ما تحققناش، منرجّعش أي UI
+  const [checked, setChecked] = useState(false);
+  // لو عملنا redirect بالفعل، متعرضش حاجة برضو لحد ما الروت يتغير
+  const redirected = useRef(false);
 
-    if (!token && !isLoginPage) {
+  useLayoutEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const isPublic = PUBLIC_ROUTES.includes(pathname);
+
+    if (!token && !isPublic) {
+      redirected.current = true;
       router.replace('/login');
-    } else if (token && isLoginPage) {
-      router.replace('/home');
+      return;
     }
 
-    setLoading(false);
+    if (token && isPublic) {
+      redirected.current = true;
+      router.replace('/home');
+      return;
+    }
+
+    setChecked(true);
   }, [pathname, router]);
 
-  if (loading) return null;
+  if (!checked || redirected.current) return null;
 
   return <>{children}</>;
 }

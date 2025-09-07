@@ -81,7 +81,7 @@ export default function ImageLightbox({ images, index, onChange, onClose }: Prop
         <div className="flex w-[86px] !pt-[20px] flex-col items-center gap-3">
           {images.map((src, i) => (
             <button
-              key={src + i}
+              key={ i}
               className={`relative h-[68px] w-[68px] overflow-hidden rounded-2xl ring-2 transition
                 ${i === index ? 'ring-red-600' : 'ring-transparent hover:ring-white/40'}`}
               onClick={() => onChange(i)}
