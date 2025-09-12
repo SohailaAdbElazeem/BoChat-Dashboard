@@ -94,14 +94,14 @@ export default function BlockedWordsPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="اكتب ما تبحث عنه"
-            className="h-12 rounded-2xl border-none bg-white/70 shadow-inner"
+            className="h-12 rounded-2xl border-none bg-white/70 -inner"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
         <section className="xl:col-span-8">
-          <div className="overflow-hidden rounded-3xl bg-[#F6F6F6] shadow-sm">
+          <div className="overflow-hidden rounded-3xl bg-[#F6F6F6] ">
             <div className="grid grid-cols-[110px_130px_1fr_180px_140px_150px] items-center gap-2 bg-[#EDEDED] px-4 py-3 text-sm font-medium text-gray-700">
               <div className="text-center">الإجراءات</div>
               <div className="text-center">تاريخ الإضافة</div>
@@ -144,7 +144,7 @@ export default function BlockedWordsPage() {
         {/* الفورم والبطاقة (يمين) */}
         <aside className="xl:col-span-4 space-y-6">
           {/* فورم إضافة كلمة محظورة */}
-          <div className="rounded-3xl bg-[#F6F6F6] p-6 shadow-sm">
+          <div className="rounded-3xl bg-[#F6F6F6] p-6 ">
             <h3 className="mb-4 text-center text-[18px] font-semibold text-[#D12D2D]">
               إضافة كلمة محظورة
             </h3>
@@ -185,7 +185,7 @@ export default function BlockedWordsPage() {
             </div>
           </div>
 
-          <div className="rounded-3xl bg-[#F6F6F6]  shadow-sm">
+          <div className="rounded-3xl bg-[#F6F6F6]  ">
             <div className='p-5 '>
                 <p className="text-right text-sm leading-7 text-gray-600">
                 إجمالي عدد الكلمات المحظورة التي تمت إضافتها ومتابعتها داخل النظام حتى الآن

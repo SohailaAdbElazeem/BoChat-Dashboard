@@ -116,7 +116,7 @@ export default function BanForm() {
   };
 
   return (
-    <div className="rounded-3xl bg-[#F6F6F6] p-6 shadow-sm" dir="rtl">
+    <div className="rounded-3xl bg-[#F6F6F6] p-6 " dir="rtl">
       <h2 className="mb-4 text-center text-[18px] font-semibold text-[#D12D2D]">
         حظر حساب
       </h2>
@@ -192,15 +192,16 @@ export default function BanForm() {
             </button>
           </div>
         </div>
-
-        <Button
-          onClick={submit}
-          disabled={disabledCommon || loading}
-          className="mt-2 h-12 w-full rounded-2xl bg-[#D12D2D] text-white hover:bg-[#be2525]"
-          title={getToken() ? "" : "يجب أن يكون هناك توكن في localStorage"}
-        >
-          حظر
-        </Button>
+        <div className="flex items-center">
+          <Button
+            onClick={submit}
+            disabled={disabledCommon || loading}
+            className="mt-2 h-12 w-[250px] mx-auto rounded-2xl bg-[#D12D2D] text-white hover:bg-[#be2525]"
+            title={getToken() ? "" : "يجب أن يكون هناك توكن في localStorage"}
+            >
+            حظر
+          </Button>
+        </div>
       </div>
     </div>
   );

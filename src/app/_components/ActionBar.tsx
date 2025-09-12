@@ -1,49 +1,50 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import Link from "next/link";
-import { Ban, Plus, Newspaper, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils"; 
 import { Button } from "@/components/ui/button";
 
 type Item = {
   href: string;
   label: string;
-  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  icon: string;
 };
 
 const ITEMS: Item[] = [
-  { href: "/blocked-content",     label: "محتوى محظور", Icon: Ban },
-  { href: "/tips",    label: "بوست نصائح",  Icon: Plus },
-  { href: "/reports",     label: "الإبلاغات",    Icon: Newspaper },
-  { href: "/accounts/new",label: "إضافة حساب",  Icon: UserPlus },
+  { href: "/blocked-content",  label: "محتوى محظور", icon: "/icons/block-content.svg" },
+  { href: "/tips", label: "بوست نصائح",  icon: "/icons/advice.svg" },
+  { href: "/reports", label: "الإبلاغات",  icon:  "/icons/eblag.svg" },
+  { href: "/accounts/new",label: "إضافة حساب",  icon: "/icons/user-add 1.svg" },
 ];
 
 export default function ActionBar({ className }: { className?: string }) {
   return (
     <div className={cn("flex flex-wrap justify-end gap-3", className)}>
-      {ITEMS.map(({ href, label, Icon }) => (
+      {ITEMS.map(({ href, label, icon }) => (
         <Button
           key={href}
           asChild
           variant="ghost"
           className="
-            group rounded-[25] px-1 !py-[30px]
-            bg-[#F6F6F6] hover:bg-neutral-100
-            text-red-600 shadow-sm ring-1 ring-red-100
+            group rounded-[25px] px-1 !py-[30px]
+            bg-[#F6F6F6]
+            text-red-600 
             flex items-center justify-end
-            w-[200px]
+            w-[250px]
+            h-[70px]
             "
         >
           <Link href={href} className="flex items-center justify-end gap-3">
 
-            <span className="text-sm font-medium">{label}</span>
+            <span className="text-[20px] font-medium">{label}</span>
             <span
               className="
-                grid h-14 w-15 place-items-center rounded-[22px]
-                bg-[#E6E6E6] group-hover:bg-red-200
+                grid h-15 w-15 place-items-center rounded-[22px]
+                bg-[#E6E6E6] 
               "
             >
-              <Icon className="!h-6 !w-6" />
+              <img src={icon} width={120} alt="icon" className="!h-6 !w-6" />
             </span>
           </Link>
         </Button>

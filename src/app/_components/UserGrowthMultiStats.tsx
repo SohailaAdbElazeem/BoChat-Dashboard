@@ -35,7 +35,7 @@ export default function UserGrowthMultiStats({
 }: Props) {
   
   return (
-    <div className='flex relative  bg-[#F6F6F6] rounded-[40px] shadow pie' dir='rtl' >
+    <div className='flex relative bg-[#F6F6F6] rounded-[40px]  pie' dir='rtl' >
       <div className="flex relative flex-col items-center justify-end py-2 rounded-br-[40px] rounded-tr-[40px] flex-1">
         <div className="flex items-center justify-between w-full !px-5" >
           <div className="flex items-center gap-3 text-[12px]">

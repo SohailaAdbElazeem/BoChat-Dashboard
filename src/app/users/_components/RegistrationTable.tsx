@@ -29,13 +29,13 @@ export default function RegistrationTable({
   onRowClick,
 }: Props) {
   return (
-    <section className="!w-full !pl-[70px]" dir="rtl">
+    <section className="!w-full !pl-[70px] max-h-[620px] overflow-hidden scrollbar-hidden" dir="rtl">
       <header className="mb-3">
         <h2 className="text-rose-600 text-lg font-semibold">{title}</h2>
       </header>
 
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div className="max-h-[420px] overflow-auto">
+      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white ">
+        <div className="max-h-[720px] overflow-auto scrollbar-hidden">
           <table className="min-w-full text-sm">
             <thead className="sticky top-0 z-10 bg-rose-50/60 backdrop-blur supports-[backdrop-filter]:bg-rose-50/50">
               <tr className="text-gray-600">
@@ -64,7 +64,7 @@ export default function RegistrationTable({
                   <td className="py-3 pr-4 pl-2 text-center text-gray-700">{r.index}</td>
 
                   <td className="py-3 px-2">
-                    <div className="relative h-9 w-9 overflow-hidden rounded-full ring-2 ring-white shadow-sm">
+                    <div className="relative h-9 w-9 overflow-hidden rounded-full ring-2 ring-white ">
                       <Image
                         src={r.avatarUrl || '/avatar-placeholder.png'}
                         alt={r.userName}

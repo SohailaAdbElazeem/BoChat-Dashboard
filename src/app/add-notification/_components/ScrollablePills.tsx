@@ -83,7 +83,7 @@ export default function ScrollablePills({ items, value, onChange, className }: P
               className={`whitespace-nowrap px-[5px] py-3 rounded-full border text-sm transition-all
                 min-w-[110px] text-center 
                 ${active
-                  ? "bg-[#D72229] text-white border-[#D72229] shadow"
+                  ? "bg-[#D72229] text-white border-[#D72229] "
                   : "bg-[#E6E6E6] text-[#333] border-gray-200 hover:border-[#D72229]/50"
                 }`}
               type="button"

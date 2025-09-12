@@ -23,11 +23,11 @@ type BannedUser = {
 
 const ChartsSidebar = () => (
   <div className="space-y-4">
-    <div className="rounded-3xl bg-[#F6F6F6] p-4 shadow-sm">
+    <div className="rounded-3xl bg-[#F6F6F6] p-4 ">
       <div className="mb-2 text-right text-[15px] font-semibold text-[#D12D2D]">نسبة الحظر الشهري</div>
       <div className="h-[160px] rounded-xl bg-white/50" />
     </div>
-    <div className="rounded-3xl bg-[#F6F6F6] p-4 shadow-sm">
+    <div className="rounded-3xl bg-[#F6F6F6] p-4 ">
       <div className="mb-2 text-right text-[15px] font-semibold text-[#D12D2D]">نسبة الحظر من عدد المستخدمين</div>
       <div className="h-[160px] rounded-xl bg-white/50" />
     </div>
@@ -81,7 +81,7 @@ export default function BanPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="اكتب ما تبحث عنه"
-              className="h-12 rounded-2xl border-none bg-white/70 shadow-inner"
+              className="h-12 rounded-2xl border-none bg-white/70 -inner"
             />
           </div>
             <ChartsSidebar />

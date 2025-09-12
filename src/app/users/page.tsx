@@ -52,7 +52,6 @@ async function safeFetchJSON(input: RequestInfo, init?: RequestInit) {
   try {
     data = txt ? JSON.parse(txt) : {};
   } catch {
-    /* ignore non-json */
   }
   if (!res.ok) {
     const reason = data?.message || data?.error || `Fetch failed ${res.status}`;
@@ -74,7 +73,6 @@ function mapUserToRow(u: any, i: number): RegistrationRow {
     u?.gender === 0 ? "ذكر" : u?.gender === 1 ? "أنثى" : "";
 
   return {
-    // الحقول الإضافية الموجودة في نوع RegistrationRow (من LastLogins)
     no: u?._id,
     postImages: null,
     comments: null,

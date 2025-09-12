@@ -12,9 +12,8 @@
 
 @font-face {
   font-family: 'Cairo';
-  src: url('/font/Cairo-Bold.ttf') format('truetype');
+  src: url('/fonts/Cairo-Bold.ttf') format('truetype');
   font-weight: 900;
-  font-style: normal;
 }
 
 @font-face {
@@ -186,3 +185,13 @@ input:focus::placeholder{
     @apply bg-background text-foreground;
   }
 }
+
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hidden {
+  -ms-overflow-style: none; 
+  scrollbar-width: none; 
+}
+

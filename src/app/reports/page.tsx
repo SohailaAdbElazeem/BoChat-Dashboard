@@ -165,7 +165,7 @@ export default function ReportsPage() {
         {filtered.map((r) => (
           <div
             key={r.id}
-            className="grid grid-cols-[140px_minmax(220px,300px)_1fr] items-start gap-3 rounded-3xl bg-[#F6F6F6] p-3 shadow-sm"
+            className="grid grid-cols-[140px_minmax(220px,300px)_1fr] items-start gap-3 rounded-3xl bg-[#F6F6F6] p-3 "
           >
             {/* عمود الإجراءات (يسار الكارت) */}
             <div className="flex w-[140px] flex-col gap-2">

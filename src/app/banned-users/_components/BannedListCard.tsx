@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function BannedListCard() {
   return (
-    <div className="rounded-3xl bg-[#F6F6F6] p-6 shadow-sm" dir="rtl">
+    <div className="rounded-3xl bg-[#F6F6F6] p-6 " dir="rtl">
       <p className="text-right text-sm text-gray-600">
         لكي تشاهد قائمة المحظورين اضغط على هذا الزر لعرض جميع الحسابات التي تحت حظرها
       </p>

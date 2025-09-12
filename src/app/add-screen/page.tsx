@@ -21,7 +21,7 @@ const PillButton: React.FC<{
     className={`px-6 py-3 rounded-full border transition-all text-sm min-w-[100px]
       ${
         active
-          ? "bg-[#C41F35] text-white border-[#C41F35] shadow"
+          ? "bg-[#C41F35] text-white border-[#C41F35] "
           : "bg-white text-[#333] border-[#E5E7EB] hover:border-[#C41F35]"
       }`}
   >
@@ -254,7 +254,7 @@ const RightSidebar: React.FC<{
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="اكتب ما تبحث عنه"
-            className="h-12 rounded-2xl border-none bg-white/70 shadow-inner"
+            className="h-12 rounded-2xl border-none bg-white/70 -inner"
           />
         </div>
       </div>

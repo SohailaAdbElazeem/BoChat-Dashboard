@@ -93,9 +93,9 @@ export default function UserPieStats({
   }, [apiData]);
 
   return (
-    <div className='flex relative h-[200px] bg-[#F6F6F6] rounded-[40px] shadow kpi'>
+    <div className='flex relative h-[200px] bg-[#F6F6F6] rounded-[40px]  kpi'>
       <div className='bg-[#D72229] relative w-[35%] rounded-br-[40px] rounded-tl-[40px] rounded-bl-[40px] p-2 text-white'>
-        <h1 className='rotate-[270deg] w-fit h-fit text-[15px] absolute top-[50%] translate-y-[-50%] left-[-20%]'>
+        <h1 className='rotate-[270deg] w-fit h-fit text-[15px] absolute top-[50%] translate-y-[-50%] left-[-15%]'>
           {sideLabel}
         </h1>
 
@@ -108,8 +108,8 @@ export default function UserPieStats({
           {!loading && !error && data.map((item, index) => (
             <div key={index}>
               <p className='text-[10px]'>{item.name}</p>
-              <h1 className='text-[18px]'>
-                {item.value} <span className='text-[10px]'>شخص</span>
+              <h1 className='text-[18px] font-bold'>
+                {item.value} <span className='text-[10px] font-normal'>شخص</span>
               </h1>
             </div>
           ))}
@@ -153,7 +153,6 @@ export default function UserPieStats({
             </Pie>
             <Tooltip />
           </PieChart>
-
           <div className="text-center text-2xl text-[#D72229] absolute top-[45%] left-[50%] translate-x-[-50%]">
             {loading ? '—' : percentageLabel}
           </div>

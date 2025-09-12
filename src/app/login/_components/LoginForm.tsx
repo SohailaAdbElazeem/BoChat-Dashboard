@@ -74,7 +74,7 @@ function LoginForm() {
       
       <div className="relative w-full max-w-[500px]">
         <div className="absolute inset-0 bg-[#D7222926] w-[580] rounded-[14px] translate-x-[-40px] translate-y-[50px] -z-10 hide-this"></div>
-        <div className="login-wrapper bg-white p-8 sm:p-[60px] relative rounded-[14px] shadow-md flex flex-col items-center gap-6">
+        <div className="login-wrapper bg-white p-8 sm:p-[60px] relative rounded-[14px] -md flex flex-col items-center gap-6">
           <h1 className="text-[#D72229] text-[22px]">تسجيل الدخول</h1>
           <form dir="rtl" className="w-full flex flex-col gap-4" onSubmit={handleSubmit}>
             <input

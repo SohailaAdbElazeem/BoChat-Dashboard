@@ -307,7 +307,7 @@ const RightSidebar: React.FC<{
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="اكتب ما تبحث عنه"
-            className="h-12 rounded-2xl border-none bg-white/70 shadow-inner"
+            className="h-12 rounded-2xl border-none bg-white/70 -inner"
           />
         </div>
 

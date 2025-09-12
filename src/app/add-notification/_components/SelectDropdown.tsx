@@ -83,7 +83,7 @@ export default function SelectDropdown({
       {/* القائمة */}
       {open && (
         <div
-          className="absolute z-50 mt-2 right-0 left-0 bg-white rounded-2xl shadow-lg p-1
+          className="absolute z-50 mt-2 right-0 left-0 bg-white rounded-2xl -lg p-1
                      max-h-64 overflow-auto no-scrollbar border border-gray-100"
         >
           {options.map((opt, i) => {

@@ -38,6 +38,8 @@ type Props = {
   title?: string;
   rows?: RegistrationRow[];
   onRowClick?: (row: RegistrationRow) => void;
+  /** نص البحث القادم من الكومبوننت الخارجي (SearchBar) */
+  filterQuery?: string;
 };
 
 const badgeClasses = (status: RegistrationRow['status']) =>
@@ -60,8 +62,7 @@ async function safeFetchJSON(input: RequestInfo, init?: RequestInit) {
   let data: any = {};
   try {
     data = txt ? JSON.parse(txt) : {};
-  } catch {
-  }
+  } catch {}
   if (!res.ok) {
     const reason = data?.message || data?.error || `Fetch failed ${res.status}`;
     throw new Error(reason);
@@ -88,15 +89,15 @@ export default function LastLogins({
   title = 'آخر عمليات تسجيل الدخول',
   rows = [],
   onRowClick,
+  filterQuery = '',
 }: Props) {
   const [apiRows, setApiRows] = useState<RegistrationRow[]>(rows);
-  const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  const didRun = useRef(false); 
+  const didRun = useRef(false);
   const CACHE_KEY = 'lastLoginsCache';
-  const CACHE_DURATION = 24 * 60 * 60 * 1000; 
+  const CACHE_DURATION = 24 * 60 * 60 * 1000;
 
   const ENDPOINTS = useMemo(
     () => ['http://bo-chat.space/lastLogIn', 'https://bo-chat.space/lastLogIn'],
@@ -132,8 +133,7 @@ export default function LastLogins({
             return;
           }
         }
-      } catch {
-      }
+      } catch {}
 
       try {
         if (!token) {
@@ -165,12 +165,10 @@ export default function LastLogins({
         }
         if (!fetched.length && lastErr) throw lastErr;
 
-        // sort بالأحدث
         const sorted = [...fetched].sort(
           (a, b) => (Date.parse(b?.lastLogIn || '') || 0) - (Date.parse(a?.lastLogIn || '') || 0),
         );
 
-        // map للـ RegistrationRow
         const mapped: RegistrationRow[] = sorted.map((u: any, i: number) => {
           const phone = u?.phonenumber && String(u.phonenumber).trim();
           const img = u?.img || '/avatar-placeholder.png';
@@ -191,7 +189,7 @@ export default function LastLogins({
             index: i + 1,
             avatarUrl: img,
             userName: u?.username || u?.name || '—',
-            emailOrPhone: phone || '—', 
+            emailOrPhone: phone || '—',
             type: fromProvider(u?.provider),
             birthDate: String(u?.lastLogIn || '—'),
             status: u?.active ? 'نشط' : 'غير نشط',
@@ -213,30 +211,22 @@ export default function LastLogins({
   }, [rows, token, ENDPOINTS]);
 
   const filtered = useMemo(() => {
-    const q = norm(query);
+    const q = norm(filterQuery);
     if (!q) return apiRows;
     return apiRows.filter((r) => {
       const haystack = norm([r.userName, r.emailOrPhone, r.id, r.type, r.status].join(' '));
       return haystack.includes(q);
     });
-  }, [apiRows, query]);
+  }, [apiRows, filterQuery]);
 
   return (
-    <section className="!w-full logins-table">
+    <section className="!w-full logins-table ">
       <header className="mb-3">
         <h2 className="text-rose-600 text-lg font-semibold" dir="rtl">
           {title}
         </h2>
       </header>
 
-      <div className="flex justify-end mb-2">
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="ابحث بالاسم / الايميل / الحالة"
-          className="h-9 w-72 rounded-xl border border-gray-200 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-rose-200"
-        />
-      </div>
 
       {loading && (
         <div className="mb-2 rounded-xl bg-[#EDEDED] p-3 text-center text-sm text-gray-600" dir="rtl">
@@ -249,11 +239,8 @@ export default function LastLogins({
         </div>
       )}
 
-      <div
-        className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
-        dir="rtl"
-      >
-        <div className="max-h-[420px] overflow-auto">
+      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white " dir="rtl">
+        <div className="max-h-[420px] overflow-auto scrollbar-hidden">
           <table className="min-w-full text-sm">
             <thead className="sticky top-0 z-10 bg-rose-50/60 backdrop-blur supports-[backdrop-filter]:bg-rose-50/50">
               <tr className="text-gray-600">
@@ -277,7 +264,7 @@ export default function LastLogins({
                   <td className="py-3 pr-4 pl-2 text-center text-gray-700">{r.index}</td>
 
                   <td className="py-3 px-2">
-                    <div className="relative h-9 w-9 overflow-hidden rounded-full ring-2 ring-white shadow-sm">
+                    <div className="relative h-9 w-9 overflow-hidden rounded-full ring-2 ring-white ">
                       <Image
                         src={r.avatarUrl || '/avatar-placeholder.png'}
                         alt={r.userName}

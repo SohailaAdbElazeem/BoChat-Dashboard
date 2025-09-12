@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
@@ -53,7 +54,6 @@ function getToken(primaryKey?: string): string {
 
 /** Transform API rows to recharts points */
 function mapApiRows(rows: ApiRow[]) {
-  // X-axis label => use day as-is (YYYY-MM-DD). You can format if you like.
   return rows.map(r => ({ name: r.day, count: r.count }));
 }
 
@@ -108,7 +108,6 @@ const CustomChart: React.FC<Props> = ({
     return () => controller.abort();
   }, [apiUrl, tokenKey]);
 
-  // Skeleton بسيط
   const skeleton = (
     <div style={{ height }} className="w-full rounded-[16px] bg-[#eee] animate-pulse" />
   );
@@ -124,23 +123,26 @@ const CustomChart: React.FC<Props> = ({
       );
     }
     return (
-      <ResponsiveContainer width="100%" height={height} className="right-chart">
-        <LineChart data={apiPoints}>
-          <CartesianGrid strokeDasharray="0" horizontal vertical={false} />
-          <XAxis dataKey="name" strokeWidth={0} axisLine={false} tickLine={false} />
-          <YAxis tickFormatter={formatNumber} axisLine={false} tickLine={false} />
-          <Tooltip formatter={(value: number) => formatNumber(value)} />
-          <Line
-            type="monotone"
-            dataKey="count"
-            stroke="#1f77b4"
-            strokeWidth={1.5}
-            dot={{ r: 3 }}
-            activeDot={{ r: 4 }}
-            name={apiLineName}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+      <div>
+        <h1 className='text-right text-[#D72229] text-[20px]'>نسبة التفاعل الشهري</h1>
+        <ResponsiveContainer width="100%" height={height} className="right-chart">
+          <LineChart data={apiPoints}>
+            <CartesianGrid strokeDasharray="0" horizontal vertical={false} />
+            <XAxis dataKey="name" strokeWidth={0} axisLine={false} tickLine={false} />
+            <YAxis tickFormatter={formatNumber} axisLine={false} tickLine={false} />
+            <Tooltip formatter={(value: number) => formatNumber(value)} />
+            <Line
+              type="monotone"
+              dataKey="count"
+              stroke="#1f77b4"
+              strokeWidth={1.5}
+              dot={{ r: 3 }}
+              activeDot={{ r: 4 }}
+              name={apiLineName}
+              />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     );
   }, [loadingApi, skeleton, apiError, height, apiPoints, apiLineName]);
 

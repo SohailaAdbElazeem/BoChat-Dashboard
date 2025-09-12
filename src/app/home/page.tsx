@@ -1,14 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
+import React, { useEffect, useState } from 'react';
+
 import RequireAuth from '../_components/RequireAuth';
-import './main.css'
+import './main.css';
 import UserGrowthStats from '../_components/UserGrowthStats';
 import LastLogins from '../_components/LastLogins';
 import ActionBar from '../_components/ActionBar';
 import UserPieStats, { ApiResponse } from '../_components/UserPieStats';
-import React, { useEffect, useState } from 'react';
 import CustomChart, { StaticChartPoint } from '../_components/CustomChart';
+import SearchBar from '../_components/SearchBar';
 
 type LoginStatsResponse = {
   logs: number;
@@ -33,6 +35,7 @@ const STAT_LABELS_AR: Record<keyof NonNullable<LoginStatsResponse['stats']>, str
   year: 'سنة',
   allTime: 'طوال المدة',
 };
+
 const fakeData: StaticChartPoint[] = [
   { name: 'يناير', value: 30000, value2: 20000, value3: 60000 },
   { name: 'فبراير', value: 35000, value2: 25000, value3: 65000 },
@@ -41,6 +44,7 @@ const fakeData: StaticChartPoint[] = [
   { name: 'مايو', value: 70000, value2: 40000, value3: 80000 },
   { name: 'يونيو', value: 75000, value2: 45000, value3: 85000 },
 ];
+
 function toGrowthSeries(res: LoginStatsResponse) {
   const s = res?.stats ?? {};
   const order: (keyof typeof STAT_LABELS_AR)[] = [
@@ -59,18 +63,20 @@ function toGrowthSeries(res: LoginStatsResponse) {
 }
 
 function MainPage() {
+  // ===== Const config =====
   const duration = 'allTime';
   const apiUrl = 'https://bo-chat.space/totalStatistics';
   const loginStatsUrl = 'http://bo-chat.space/logInStatistics'; // نفس الشكل اللي انت بعته
   const tokenKey = 'token';
 
+  // ===== State =====
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [apiData, setApiData] = useState<ApiResponse | null>(null);
-
-  // ⬇️ جديد: داتا الرسم الخطي
   const [growthSeries, setGrowthSeries] = useState<{ month: string; value: number }[]>([]);
+  const [query, setQuery] = useState<string>(''); // <-- مضافة
 
+  // ===== Effects =====
   useEffect(() => {
     const controller = new AbortController();
 
@@ -83,7 +89,8 @@ function MainPage() {
           localStorage.getItem(tokenKey) ??
           localStorage.getItem('authToken') ??
           localStorage.getItem('access_token') ??
-          localStorage.getItem('jwt') ?? '';
+          localStorage.getItem('jwt') ??
+          '';
 
         if (!token) {
           setError('لم يتم العثور على التوكن في المتصفح.');
@@ -91,7 +98,6 @@ function MainPage() {
           return;
         }
 
-        // اجلب الـ Pie + Growth معًا
         const [pieRes, growthRes] = await Promise.all([
           fetch(apiUrl, {
             method: 'POST',
@@ -138,15 +144,14 @@ function MainPage() {
     return () => controller.abort();
   }, [apiUrl, loginStatsUrl, duration, tokenKey]);
 
-   return (
+  return (
     <RequireAuth>
       <div className="container main-page">
         <div>
-          <div className='mb-[15px]'>
-            <ActionBar/>
+          <div className="mb-[15px]">
+            <ActionBar />
           </div>
-
-          <div className='charts-container'>
+          <div className="charts-container">
             <UserPieStats
               apiData={apiData}
               loading={loading}
@@ -154,18 +159,23 @@ function MainPage() {
               title="المستخدمين النشطين"
               sideLabel="اجمالي النسب"
             />
-
             <UserGrowthStats
               data={growthSeries}
               title="نمو المستخدمين حسب الأشهر"
               sideLabel="عدد المستخدمين"
             />
-
-            <LastLogins />
+            <LastLogins filterQuery={query}/>
           </div>
         </div>
-
         <aside className="right-col">
+          <SearchBar
+            value={query}
+            onValueChange={setQuery}
+            onSubmit={(val) => setQuery(val)}
+            placeholder="اكتب ما تبحث عنه"
+            dir="rtl"
+            className="mb-2"
+          />
           <CustomChart
             apiUrl="http://bo-chat.space/reactStatistics"
             tokenKey={tokenKey}

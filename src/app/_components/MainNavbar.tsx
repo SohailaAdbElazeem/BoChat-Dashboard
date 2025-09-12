@@ -50,7 +50,7 @@ function MainNavbar(){
         className={[
           isFixed ? 'fixed top-0 left-0 right-0 transition-all duration-400' : 'relative',
           blurBg
-            ? 'backdrop-blur-md bg-white/70 dark:bg-slate-900/70 shadow-sm'
+            ? 'backdrop-blur-md bg-white/70 dark:bg-slate-900/70 '
             : 'bg-transparent',
           'transition-all duration-400 py-[10px] z-[9999] flex justify-between items-center w-full'
         ].join(' ')}
@@ -88,7 +88,7 @@ function MainNavbar(){
 
           <button
             onClick={handleLogout}
-            className="bg-[#D72229] text-white px-4 py-1 rounded-[20px] hover:bg-red-700 transition"
+            className="bg-[#D72229] text-white px-4 py-2 rounded-[15px] hover:bg-red-700 transition"
           >
             تسجيل الخروج
           </button>

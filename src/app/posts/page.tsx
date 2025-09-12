@@ -150,7 +150,7 @@ function mapPostToRow(p: any, i: number): RegistrationRow {
 
   return {
     no: i + 1,
-    avatar: u?.img || p?.img || '/avatar-placeholder.png',
+    avatar: u?.userimg || p?.userimg || '/avatar-placeholder.png',
     userName: u?.username || u?.name || p?.username || p?.name || '—',
     id: p?._id || p?.id || '—',
     status,
@@ -258,8 +258,10 @@ export default function PostsPage() {
   }, []);
 
   return (
-    <main className="p-4 md:p-6 space-y-4" dir="rtl">
-      <FilterBar rows={rows} filters={filters} onChange={setFilters} />
+    <main className="p-4 md:p-6 space-y-4 overflow-hidden h-[88vh]" dir="rtl">
+      <div className='!pl-[40px]'>
+        <FilterBar rows={rows} filters={filters} onChange={setFilters} />
+      </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 !pl-[60px]">
         <UserGrowthMultiStats
@@ -303,7 +305,7 @@ export default function PostsPage() {
         </div>
       )}
 
-      <div className="pl-[60px]">
+      <div className="pl-[60px] overflow-hidden">
         <RegistrationsTable rows={filtered} />
       </div>
     </main>

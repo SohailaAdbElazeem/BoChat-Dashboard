@@ -118,7 +118,7 @@ function BlockCard({
   const fieldBox =
     'h-9 w-full rounded-xl bg-[#EDEDED] text-[13px] text-[#7A7A7A] flex items-center px-3';
   return (
-    <div className="rounded-[24px] bg-[#F6F6F6] p-5 shadow-sm border  border-[#F0F0F0]">
+    <div className="rounded-[24px] bg-[#F6F6F6] p-5  border  border-[#F0F0F0]">
       <div className="text-center text-[#E73E3E] font-semibold mb-4">معلومات الحساب</div>
 
       <div className="space-y-2" dir='rtl'>
