@@ -122,7 +122,7 @@ export default function AddAccountCard({
   };
 
   return (
-    <div className="rounded-3xl bg-[#F6F6F6] p-6 " dir="rtl">
+    <div className="rounded-[34px] bg-[#F6F6F6] p-6 " dir="rtl">
       <h2 className="mb-4 text-center text-[18px] font-semibold text-[#D12D2D]">إضافة حساب</h2>
 
       <div className="space-y-4">
@@ -186,14 +186,15 @@ export default function AddAccountCard({
         {okMsg && (
           <div className="rounded-xl bg-green-50 px-4 py-3 text-sm text-green-700">{okMsg}</div>
         )}
-
-        <Button
-          disabled={submitting}
-          onClick={handleSubmit}
-          className="mt-4 w-full rounded-2xl bg-[#D12D2D] hover:bg-[#be2525] disabled:opacity-60"
-        >
-          {submitting ? "جارٍ الإضافة..." : "إضافة"}
-        </Button>
+        <div className="d-flex px-[70px]">
+          <Button
+            disabled={submitting}
+            onClick={handleSubmit}
+            className="mt-4 w-full rounded-[20px] bg-[#D12D2D] h-[50px] !p-[15px] hover:bg-[#be2525] disabled:opacity-60"
+            >
+            {submitting ? "جارٍ الإضافة..." : "إضافة"}
+          </Button>
+        </div>
       </div>
     </div>
   );
