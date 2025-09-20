@@ -71,3 +71,25 @@
   -ms-transform: translate(-30%,-50%);
   -o-transform: translate(-30%,-50%);
 }
+
+
+.nav-btn::after {
+  content: attr(data-label);
+  position: absolute;
+  left: 50px; /* يمين البار */
+  transform: translateY(-50%);
+  background: #000;       /* لون الخلفية */
+  color: #fff;            /* لون النص */
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  font-size: 12px;
+  z-index: 9999;
+}
+
+.nav-btn:hover::after {
+  opacity: 1;
+}

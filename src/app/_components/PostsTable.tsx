@@ -6,7 +6,14 @@ import { RegistrationRow } from './LastLogins';
 import { MoreVertical } from 'lucide-react';
 import ImageLightbox from './ImageLightbox';
 import { StaticImport } from 'next/dist/shared/lib/get-img-props';
+import { useRouter } from "next/navigation";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 type Props = { rows: RegistrationRow[] };
 
 export default function RegistrationsTable({ rows }: Props) {
@@ -14,6 +21,7 @@ export default function RegistrationsTable({ rows }: Props) {
   const [open, setOpen] = useState(false);
   const [currentSet, setCurrentSet] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const router = useRouter();
 
   const openLightbox = (images: string[], index: number) => {
     if (!images?.length) return;
@@ -45,14 +53,32 @@ export default function RegistrationsTable({ rows }: Props) {
           <tbody>
             {rows.map((r) => (
               <tr key={r.no} className="border-t text-sm hover:bg-[#fafafa]">
-                <td className="p-3">
-                  <button
-                    className="rounded-xl border px-2 py-1 text-[#777] hover:bg-[#f3f3f3]"
-                    aria-label="Actions"
-                  >
-                    <MoreVertical size={16} />
-                  </button>
-                </td>
+                <td className="py-3 px-2 text-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-gray-100 focus:outline-none"
+                          aria-label="إجراءات"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MoreVertical className="h-4 w-4 text-gray-600" />
+                        </button>
+                      </DropdownMenuTrigger>
+
+                      <DropdownMenuContent align="center"  className="min-w-[140px] rounded-[15px]">
+                        <DropdownMenuItem
+                          className="cursor-pointer text-[18px] text-rose-700 rounded-[12px] p-[10px] flex items-center justify-center"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/banned-users?userid=${encodeURIComponent(r.id)}`);
+                          }}
+                        >
+                          حظر
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </td>
 
                 <td className="p-3">
                   <div className="flex flex-wrap gap-1">
@@ -97,12 +123,13 @@ export default function RegistrationsTable({ rows }: Props) {
 
                 <td className="p-3">{r.id}</td>
                 <td className="p-3">{r.userName}</td>
-                <td className="p-3">
-                  <div className="relative h-8 w-8 overflow-hidden rounded-full ring-2 ring-white ">
+                <td className="p-3 flex items-center justify-center ">
+                  <div className="relative h-8 w-8 overflow-hidden rounded-full ">
                     <Image src={r.avatar} alt={r.userName} fill className="object-cover" />
                   </div>
                 </td>
                 <td className="p-3">{r.no}</td>
+
               </tr>
             ))}
           </tbody>

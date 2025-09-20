@@ -2,7 +2,14 @@
 
 import Image from 'next/image';
 import { RegistrationRow } from '../../_components/LastLogins';
-
+import { useRouter } from "next/navigation";
+import { MoreVertical } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 type Props = {
   title?: string;
   rows: RegistrationRow[];
@@ -28,6 +35,9 @@ export default function RegistrationTable({
   rows,
   onRowClick,
 }: Props) {
+
+  const router = useRouter();
+
   return (
     <section className="!w-full !pl-[70px] max-h-[620px] overflow-hidden scrollbar-hidden" dir="rtl">
       <header className="mb-3">
@@ -51,6 +61,7 @@ export default function RegistrationTable({
                 <th className="py-3 px-2 text-right font-medium">البلد</th>
                 <th className="py-3 px-2 text-right font-medium">المحافظة</th>
                 <th className="py-3 px-2 text-right font-medium">الجنس</th>
+                <th className="w-10 py-3 px-2 text-right font-medium">إجراءات</th>
               </tr>
             </thead>
 
@@ -96,6 +107,32 @@ export default function RegistrationTable({
                   <td className="py-3 px-2 text-gray-700">{r.country}</td>
                   <td className="py-3 px-2 text-gray-700">{r.governorate}</td>
                   <td className="py-3 px-2 text-gray-700">{r.gender}</td>
+                  <td className="py-3 px-2 text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-gray-100 focus:outline-none"
+                          aria-label="إجراءات"
+                          onClick={(e) => e.stopPropagation()} // عشان ما يفعّل onRowClick
+                        >
+                          <MoreVertical className="h-4 w-4 text-gray-600" />
+                        </button>
+                      </DropdownMenuTrigger>
+
+                      <DropdownMenuContent align="center"  className="min-w-[140px] rounded-[15px]">
+                        <DropdownMenuItem
+                          className="cursor-pointer text-[18px] text-rose-700 rounded-[12px] p-[10px] flex items-center justify-center"
+                          onClick={(e) => {
+                            e.stopPropagation(); // ما يفعّل onRowClick
+                            router.push(`/banned-users?userid=${encodeURIComponent(r.id)}`);
+                          }}
+                        >
+                          حظر
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </td>
                 </tr>
               ))}
 

@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useMemo, useState } from "react";
@@ -5,8 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 
 const SectionTitle: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div className="text-[#C41F35] text-lg  mb-3 flex items-center gap-2">
-    <span className="inline-block w-2 h-2 rounded-full bg-[#C41F35]" />
+  <div className="text-[#8989A2] text-lg  mb-3 flex items-center justify-end gap-2">
     <h3>{children}</h3>
   </div>
 );
@@ -18,11 +18,11 @@ const PillButton: React.FC<{
 }> = ({ active, onClick, children }) => (
   <button
     onClick={onClick}
-    className={`px-6 py-3 rounded-full border transition-all text-sm min-w-[100px]
+    className={`px-6 py-5 rounded-[23px] border transition-all text-m min-w-[100px]
       ${
         active
-          ? "bg-[#C41F35] text-white border-[#C41F35] "
-          : "bg-white text-[#333] border-[#E5E7EB] hover:border-[#C41F35]"
+          ? "bg-[#FFFFFF] text-[#8989A2] border-[#D72229] "
+          : "bg-[#E6E6E6] text-[#8989A2]  hover:border-[#D72229]"
       }`}
   >
     {children}
@@ -168,7 +168,6 @@ const CenterForm: React.FC<{
       duration: selectedDuration,
       imageUrl: previewUrl || undefined,
     });
-    // reset
     setNote("");
     setSelectedDuration("8 ساعات");
     setSelectedWindow("فترة الظهر");
@@ -176,30 +175,33 @@ const CenterForm: React.FC<{
   };
 
   return (
-    <div className="bg-white rounded-[28px] p-5 border">
-      <h2 className="text-center text-[#C41F35] text-xl font-semibold mb-6">اضافة صورة إشعار عند دخول التطبيق</h2>
+    <div className="bg-[#F6F6F6] rounded-[28px] p-5 ">
+      <h2 className="text-center text-[#C41F35] text-2xl font-bold mb-6">اضافة صورة إشعار عند دخول التطبيق</h2>
 
-      {/* Upload */}
       <SectionTitle>ارفع صورة</SectionTitle>
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="col-span-2 h-40 rounded-2xl bg-[#F6F6F6] border flex items-center justify-center text-gray-400">
+      <div className="grid bg-[#E6E6E6] p-[10px] rounded-[18px] grid-cols-3 gap-4 mb-6">
+        <div className="col-span-2 h-45 rounded-[18px]   flex items-center justify-center text-gray-400">
           {previewUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={previewUrl} alt="preview" className="h-full object-contain" />
+            <div className="bg-[#F6F6F6]">
+              <img src={previewUrl} alt="preview" className="h-full object-contain" />
+            </div>
           ) : (
             <span>اسحب وأفلت الصورة هنا</span>
           )}
         </div>
-        <label className="h-40 rounded-2xl bg-[#F6F6F6] border flex flex-col items-center justify-center cursor-pointer">
-          <svg width="34" height="34" viewBox="0 0 24 24"><path fill="#C41F35" d="M19 15v4H5v-4H3v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4z"/><path fill="#C41F35" d="M11 16h2V8l3.5 3.5l1.42-1.42L12 4.66L7.08 10.08L8.5 11.5L11 9z"/></svg>
+        <label className="h-45 rounded-[18px] bg-[#F6F6F6] border flex flex-col items-center justify-center cursor-pointer">
+          <label
+            htmlFor="file-upload"
+            className="w-20 h-20 bg-red-200 hover:bg-red-300 rounded-full flex items-center justify-center cursor-pointer transition"
+          >
+            <img src="/imgs/vector.svg" width={30} height={30} alt="icon" />
+          </label>
           <input type="file" accept="image/*" className="hidden" onChange={(e)=> setFile(e.target.files?.[0] ?? null)} />
-          <span className="text-[12px] text-gray-600 mt-2">اختر صورة</span>
         </label>
       </div>
 
-      <div className="text-[11px] text-gray-400 mb-6">الحد: عدد صور مسموح به صورة واحدة فقط.</div>
+      <div className="text-[15px] text-gray-400 mb-[20px] text-start underline" dir="rtl">اقصي عدد صور مسموح به هو صورة واحدة فقط</div>
 
-      {/* Duration */}
       <SectionTitle>مدة بقاء الصورة</SectionTitle>
       <div className="grid grid-cols-3 gap-3 mb-6">
         {durations.map((d) => (
@@ -222,14 +224,15 @@ const CenterForm: React.FC<{
       {/* Notes */}
       <SectionTitle>ملاحظة</SectionTitle>
       <textarea
+        dir="rtl"
         placeholder="اكتب ملاحظاتك هنا"
-        className="w-full h-28 rounded-2xl bg-[#F6F6F6] border p-4 outline-none focus:border-[#C41F35]"
+        className="w-full rounded-[18px] bg-[#E6E6E6]  p-4 outline-none  resize-none !h-[150px]"
         value={note}
         onChange={(e) => setNote(e.target.value)}
       />
 
       <div className="mt-6 flex justify-center">
-        <button onClick={submit} className="bg-[#C41F35] hover:bg-[#b31b2f] text-white rounded-full px-10 py-3 text-base font-medium">
+        <button onClick={submit} className="bg-[#D72229] w-[329px] cursor-pointer hover:bg-[#b31b2f] text-white rounded-[20px] px-10 py-4 text-base font-medium">
           اضافة إشعار
         </button>
       </div>
@@ -328,11 +331,11 @@ export default function PromoAlertsPage() {
     <main className="min-h-screen w-full bg-white">
       <div className="mx-auto p-4 md:p-6 !pl-[80px]">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-4">
             <LeftList items={filtered} onDelete={handleDelete} onRefreshTime={handleRefreshTime} />
           </div>
 
-          <div className="lg:col-span-6">
+          <div className="lg:col-span-5">
             <CenterForm onAdd={handleAdd} />
           </div>
 

@@ -10,7 +10,7 @@ import UserPieStats from '../_components/UserPieStats';
 
 type Account = { id: string; name: string; email: string };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || ''; // مثال: 'https://api.domain.com'
+const API_BASE = 'http://bo-chat.space/vip/request'; 
 
 export default function VerificationPage() {
   const pieData = [

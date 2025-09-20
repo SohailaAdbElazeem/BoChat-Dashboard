@@ -182,24 +182,22 @@ const CenterForm: React.FC<{
   const [selectedWindow, setSelectedWindow] = useState(windows[0]);
 
   return (
-    <div className="bg-[#F6F6F6] rounded-lg p-6">
+    <div className="bg-[#F6F6F6] rounded-[34PX] p-6">
       <h2 className="text-center text-[#C41F35] text-xl font-semibold mb-8">إضافة إشعار للمستخدمين</h2>
-
-      {/* عنوان الإشعار */}
       <div className="mb-6 text-right">
-        <label className="block text-gray-700 font-semibold mb-3">عنوان الإشعار</label>
+        <label className="block text-[#8989A2] font-semibold mb-3">عنوان الإشعار</label>
         <input
           type="text"
           value={note}
           onChange={(e) => setNote(e.target.value)}
           placeholder="اكتب هنا عنوان الإشعار"
-          className="w-full p-3   rounded-lg bg-[#E6E6E6] text-right focus:outline-none "
+          className="w-full p-3   rounded-[18PX] bg-[#E6E6E6] text-right focus:outline-none "
         />
       </div>
 
       {/* نوع الإشعار */}
     <div className="mb-6 text-right">
-      <label className="block text-gray-700 font-semibold mb-3">نوع الإشعار</label>
+      <label className="block text-[#8989A2] font-semibold mb-3">نوع الإشعار</label>
 
       <SelectDropdown
         options={noteOptions}
@@ -208,13 +206,12 @@ const CenterForm: React.FC<{
         placeholder="اختر نوع الإشعار من القائمة"
       />
     </div>
-
-      {/* التوضيح */}
+      {/* الوصف */}
       <div className="mb-6 text-right">
-        <label className="block text-gray-700 font-semibold mb-3">التوضيح</label>
+        <label className="block text-[#8989A2] font-semibold mb-3">الوصف</label>
         <textarea
           placeholder="اكتب هنا توضيح الإشعار"
-          className="w-full h-24 p-3  rounded-lg bg-[#E6E6E6] text-right resize-none focus:outline-none"
+          className="w-full h-24 p-3  rounded-[18px] bg-[#E6E6E6] text-right resize-none focus:outline-none"
         />
       </div>
         <div className="mb-6 text-right">
@@ -227,54 +224,52 @@ const CenterForm: React.FC<{
         />
         </div>
       {/* رفع صورة */}
-<div className="mb-6 text-right">
-  <label className="block text-gray-700 font-semibold mb-3">ارفع صورة</label>
+        <div className="mb-6 text-right">
+          <label className="block text-[#8989A2] font-semibold mb-3">ارفع صورة</label>
+          <div className="flex items-center gap-4 bg-[#E6E6E6] rounded-[18px] p-4">
+            {/* مساحة المعاينة */}
+            <div className="flex-1 h-40 rounded-[18px]  flex items-center justify-center relative">
+              {previewUrl ? (
+                <div className="relative w-full h-full flex items-center justify-center">
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    className="max-h-40 rounded-[18px] object-contain"
+                  />
+                  <button
+                    onClick={() => setFile(null)}
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center"
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : (
+                <span className="text-gray-400 text-sm">لم يتم اختيار صورة</span>
+              )}
+            </div>
+            {/* زر رفع الصورة */}
+            <div className="shrink-0 w-[155px] h-[170px] bg-[#F6F6F6] rounded-2xl flex items-center justify-center">
+              <label
+                htmlFor="file-upload"
+                className="w-18 h-18 bg-red-200 hover:bg-red-300 rounded-full flex items-center justify-center cursor-pointer transition"
+              >
+                <img src="/imgs/vector.svg" width={35} height={35} alt="icon" />
+              </label>
+              <input
+                id="file-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+              />
+            </div>
+          </div>
 
-  <div className="flex items-center gap-4 bg-[#E6E6E6] rounded-2xl p-4">
-    {/* مساحة المعاينة */}
-    <div className="flex-1 h-40 rounded-2xl  flex items-center justify-center relative">
-      {previewUrl ? (
-        <div className="relative w-full h-full flex items-center justify-center">
-          <img
-            src={previewUrl}
-            alt="Preview"
-            className="max-h-40 rounded-2xl object-contain"
-          />
-          <button
-            onClick={() => setFile(null)}
-            className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center"
-          >
-            ×
-          </button>
+          {/* نص تنبيه تحت */}
+          <p className="text-gray-500 text-sm mt-2 text-center underline cursor-default">
+            اذا اردت ان تضف صورة اقصي عدد صور مسموح به هو صورة واحدة فقط
+          </p>
         </div>
-      ) : (
-        <span className="text-gray-400 text-sm">لم يتم اختيار صورة</span>
-      )}
-    </div>
-
-    {/* زر رفع الصورة */}
-    <div className="shrink-0 w-[150px] h-[150px] bg-[#F6F6F6] rounded-2xl flex items-center justify-center">
-      <label
-        htmlFor="file-upload"
-        className="w-16 h-16 bg-red-200 hover:bg-red-300 rounded-full flex items-center justify-center cursor-pointer transition"
-      >
-        <img src="/imgs/Vector.png" width={30} height={30} alt="" />
-      </label>
-      <input
-        id="file-upload"
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => setFile(e.target.files?.[0] || null)}
-      />
-    </div>
-  </div>
-
-  {/* نص تنبيه تحت */}
-  <p className="text-gray-500 text-sm mt-2 text-center underline cursor-default">
-    اذا اردت ان تضف صورة اقصي عدد صور مسموح به هو صورة واحدة فقط
-  </p>
-</div>
 
 
 
@@ -378,10 +373,11 @@ export default function PromoAlertsPage() {
           {/* Left Sidebar */}
           <div className="lg:col-span-4">
             <LeftSidebar
-                          items={filtered}
-                          onDelete={handleDelete} onEdit={function (id: string): void {
-                              throw new Error("Function not implemented.");
-                          } }            />
+            items={filtered}
+            onDelete={handleDelete} onEdit={function (id: string): void {
+                throw new Error("Function not implemented.");
+            } }           
+            />
           </div>
 
           {/* Center Form */}

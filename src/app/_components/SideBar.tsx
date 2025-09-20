@@ -237,9 +237,12 @@ export default function SideBar() {
                 onClick={() => router.push(item.route)}
                 className={`nav-btn cursor-pointer ${isActive ? "is-active" : ""}`}
                 aria-label={item.label}
+                title={item.label} 
+                data-label={item.label} // ✨ نضيف الاسم هنا
               >
                 {item.icon}
               </button>
+
             );
           })}
         </nav>

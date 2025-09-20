@@ -258,7 +258,7 @@ export default function PostsPage() {
   }, []);
 
   return (
-    <main className="p-4 md:p-6 space-y-4 overflow-hidden h-[88vh]" dir="rtl">
+    <main className="p-4 md:p-6 space-y-4 overflow-hidden h-[100vh]" dir="rtl">
       <div className='!pl-[40px]'>
         <FilterBar rows={rows} filters={filters} onChange={setFilters} />
       </div>

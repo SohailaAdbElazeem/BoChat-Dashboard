@@ -5,7 +5,8 @@ import * as React from "react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 const BASE_HTTPS = "https://bo-chat.space";
 const BASE_HTTP = "http://bo-chat.space";
 const ADMIN_EMAIL = "bo-chat@gmail.com";
@@ -32,6 +33,11 @@ export default function BanForm() {
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
   const [successMsg, setSuccessMsg] = React.useState<string | null>(null);
 
+const searchParams = useSearchParams();
+useEffect(() => {
+  const qUserId = searchParams?.get("userid") || "";
+  if (qUserId) setUserId(qUserId);
+}, [searchParams]);
   const getToken = () =>
     localStorage.getItem("token") ||
     localStorage.getItem("auth_token") ||

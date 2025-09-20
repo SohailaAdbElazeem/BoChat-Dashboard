@@ -6,8 +6,17 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 // File: app/accounts/types.ts
 export type Account = {
 id: string;
@@ -186,15 +195,37 @@ export default function AddAccountCard({
         {okMsg && (
           <div className="rounded-xl bg-green-50 px-4 py-3 text-sm text-green-700">{okMsg}</div>
         )}
-        <div className="d-flex px-[70px]">
-          <Button
-            disabled={submitting}
-            onClick={handleSubmit}
-            className="mt-4 w-full rounded-[20px] bg-[#D12D2D] h-[50px] !p-[15px] hover:bg-[#be2525] disabled:opacity-60"
-            >
-            {submitting ? "جارٍ الإضافة..." : "إضافة"}
-          </Button>
-        </div>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <div className="d-flex px-[70px]">
+              <Button
+                disabled={submitting || !userid.trim()}  
+                className="mt-4 w-full rounded-[20px] bg-[#D12D2D] h-[50px] !p-[15px] hover:bg-[#be2525] disabled:opacity-60"
+              >
+                {submitting ? "جارٍ الإضافة..." : "إضافة"}
+              </Button>
+            </div>
+          </AlertDialogTrigger>
+
+          <AlertDialogContent dir="rtl">
+            <AlertDialogHeader>
+              <AlertDialogTitle>تأكيد الإضافة</AlertDialogTitle>
+              <AlertDialogDescription>
+                هل تريد بالتأكيد إضافة هذا الحساب كمسؤول؟
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>إلغاء</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleSubmit}
+                
+                className="bg-[#D12D2D] hover:bg-[#be2525]"
+              >
+                تأكيد الإضافة
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
