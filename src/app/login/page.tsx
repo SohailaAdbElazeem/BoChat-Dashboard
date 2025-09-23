@@ -16,7 +16,7 @@ export default function LoginPage() {
                 <ThemeToggle/>
             </nav>
             <LoginForm/>
-            <footer className="text-center">
+            <footer className="text-center absolute left-[50%] bottom-[15px] translate-x-[-50%]">
                 <h4>هذا النظام يتم ادارته بواسطة شركة <span className="text-[#D72229]">باندا اوراكل</span></h4>
             </footer>
         </main>
