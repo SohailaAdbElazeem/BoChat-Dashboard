@@ -1,10 +1,21 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import CustomChart from '../_components/CustomChart';
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 type Post = {
   _id: string;
   body: string;
@@ -19,6 +30,7 @@ export default function PostsPage() {
   const [body, setBody] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') ?? '' : '';
@@ -26,25 +38,21 @@ export default function PostsPage() {
   const niceTime = (d: string | Date) =>
     new Date(d).toLocaleString('ar-EG', { hour: '2-digit', minute: '2-digit', year: 'numeric', month: '2-digit', day: '2-digit' });
 
-  // جلب التحديثات (انت عامله بروكسي /api/dashboard/updates)
+  // === جلب التحديثات ===
   useEffect(() => {
     if (!token) return;
-    const run = async () => {
-      try {
-        const url = new URL('/api/dashboard/updates', window.location.origin);
-        url.searchParams.set('userid', '6877d5497b04a3c83759f122');
-        url.searchParams.set('token', token);
 
-        const res = await fetch(url.toString(), { method: 'GET' });
+    fetch('https://bo-chat.space/dashboard/get-app-updates/6877d5497b04a3c83759f122', {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(async (res) => {
         const text = await res.text();
         if (!res.ok) throw new Error(`HTTP ${res.status}: ${text}`);
-        const data = JSON.parse(text) as Post[];
-        setPosts(data);
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    run();
+        return JSON.parse(text) as Post[];
+      })
+      .then((data) => setPosts(data))
+      .catch((e) => console.error(e));
   }, [token]);
 
   const submitDisabled = useMemo(() => !title.trim() && !body.trim() && !file, [title, body, file]);
@@ -56,27 +64,23 @@ export default function PostsPage() {
       const fd = new FormData();
       if (body.trim()) fd.append('message', body.trim());
       if (title.trim()) fd.append('title', title.trim());
-      if (file) fd.append('file', file); // form-data file
+      if (file) fd.append('file', file);
 
-      // لو السيرفر مفعّل CORS كويس، تقدر تبعته مباشرة:
       const res = await fetch('http://bo-chat.space/dashboard/update-app', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        } as any,
+        headers: { Authorization: `Bearer ${token}` } as any,
         body: fd,
       });
 
       const text = await res.text();
       if (!res.ok) throw new Error(`HTTP ${res.status}: ${text}`);
 
-      // لو الـ API بيرجع العنصر المضاف، استخدمه:
       let created: Post | null = null;
       try { created = JSON.parse(text); } catch {}
+
       if (created && created._id) {
         setPosts((p) => [created!, ...p]);
       } else {
-        // fallback: أضف بوست محلي مؤقت
         setPosts((p) => [
           {
             _id: crypto.randomUUID(),
@@ -89,7 +93,6 @@ export default function PostsPage() {
         ]);
       }
 
-      // نظّف الفورم
       setTitle('');
       setBody('');
       setFile(null);
@@ -99,11 +102,102 @@ export default function PostsPage() {
       console.error('post failed:', e);
       alert('فشل إرسال المنشور');
     }
+    window.location.reload();
   };
 
+  // === Utils للحذف ===
+  function decodeJwt<T = any>(t: string): T | null {
+    try {
+      const [, p] = t.split('.');
+      if (!p) return null;
+      const json = JSON.parse(atob(p.replace(/-/g, '+').replace(/_/g, '/')));
+      return json as T;
+    } catch { return null; }
+  }
+
+  async function tryFetch(url: string, init: RequestInit) {
+    const res = await fetch(url, init);
+    const text = await res.text();
+    return { ok: res.ok, status: res.status, text };
+  }
+
+  // === حذف البوست (مع fallback formats) ===
   const handleDelete = async (id: string) => {
-    setPosts((p) => p.filter((x) => x._id !== id)); // كان x.id غلط
-    // TODO: نداء حذف لو عندك API للحذف
+    if (!token) {
+      alert('مفقود التوكن');
+      return;
+    }
+
+    // حاول استخراج adminid من التوكن أو من localStorage
+    const payload = decodeJwt<any>(token) || {};
+    const adminIdFromToken =
+      payload.adminid || payload.adminId || payload.userId || payload.userid || payload.id || null;
+
+    const adminId =
+      (typeof window !== 'undefined' ? localStorage.getItem('adminid') : null) ||
+      adminIdFromToken ||
+      '686695914211804ef3875338'; // بدّلها لو عندك قيمة مؤكدة
+
+    // optimistic update
+    setDeletingIds((prev) => new Set(prev).add(id));
+    const prevPosts = posts;
+    setPosts((p) => p.filter((x) => x._id !== id));
+
+    const url = 'http://bo-chat.space/dashboard/del-app-update';
+
+    try {
+      // 1) DELETE + JSON
+      let resp = await tryFetch(url, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json; charset=utf-8',
+        },
+        body: JSON.stringify({ adviceid: id, adminid: adminId }),
+      });
+
+      // 2) DELETE + x-www-form-urlencoded
+      if (!resp.ok && /invalid data/i.test(resp.text)) {
+        const formBody = new URLSearchParams({ adviceid: id, adminid: String(adminId) }).toString();
+        resp = await tryFetch(url, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: formBody,
+        });
+      }
+
+      // 3) POST (إذا السيرفر بيقبل POST لنفس الراوت)
+      if (!resp.ok && /invalid data/i.test(resp.text)) {
+        resp = await tryFetch(url, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json; charset=utf-8',
+          },
+          body: JSON.stringify({ adviceid: id, adminid: adminId }),
+        });
+      }
+
+      if (!resp.ok) {
+        console.error('delete failed:', resp.status, resp.text);
+        setPosts(prevPosts); // rollback
+        throw new Error(`HTTP ${resp.status}: ${resp.text}`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('فشل حذف المنشور');
+      setPosts(prevPosts); // rollback لو حصل خطأ
+    } finally {
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        window.location.reload();
+        return next;
+      });
+    }
   };
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,35 +217,58 @@ export default function PostsPage() {
               {posts.length === 0 ? (
                 <div className="p-6 text-center font-bold text-[#D72229]">لا توجد بوستات حالياً</div>
               ) : (
-                posts.map((post) => (
-                  <div key={post._id} className="bg-[#F6F6F6] rounded-[34px] p-4 ">
-                    <div className="text-center text-[#D72229] my-2">البوست</div>
-                    <p className="text-[#8989A2] leading-7 mb-4 bg-[#E6E6E6] p-3 rounded-[18px]" dir="rtl">
-                      {post.title || '—'}
-                    </p>
-                    <p className="text-[#8989A2] leading-7 mb-4 bg-[#E6E6E6] p-3 rounded-[18px]" dir="rtl">
-                      {post.body || '—'}
-                    </p>
+                posts.map((post) => {
+                  const isDeleting = deletingIds.has(post._id);
+                  return (
+                    <div key={post._id} className="bg-[#F6F6F6] rounded-[34px] p-4 ">
+                      <div className="text-center text-[#D72229] my-2">البوست</div>
+                      <p className="text-[#8989A2] leading-7 mb-4 bg-[#E6E6E6] p-3 rounded-[18px]" dir="rtl">
+                        {post.title || '—'}
+                      </p>
+                      <p className="text-[#8989A2] leading-7 mb-4 bg-[#E6E6E6] p-3 rounded-[18px]" dir="rtl">
+                        {post.body || '—'}
+                      </p>
 
-                    <div className="flex items-center bg-[#E6E6E6] gap-3 rounded-[18px] p-3">
-                      <div className="flex-1 text-s text-gray-400">تم النشر {niceTime(post.timestamp)}</div>
+                      <div className="flex items-center bg-[#E6E6E6] gap-3 rounded-[18px] p-3">
+                        <div className="flex-1 text-s text-gray-400">تم النشر {niceTime(post.timestamp)}</div>
 
-                      {post.media && (
-                        <div className="w-25 h-30 overflow-hidden rounded-[5px]">
-                          <Image src={post.media} alt="post" width={100} height={100} className="object-cover w-full h-full" />
-                        </div>
-                      )}
+                        {post.media && (
+                          <div className="w-25 h-30 overflow-hidden rounded-[5px]">
+                            <Image src={post.media} alt="post" width={100} height={100} className="object-cover w-full h-full" />
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="d-flex items-center justify-center px-[50px] py-3">
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <button
+                              disabled={isDeleting}
+                              className="mt-4 w-full rounded-[18px] bg-[#D72229] text-white py-3 text-sm hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {isDeleting ? '... جاري الحذف' : 'حذف'}
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent className='!z-9999999999999999' >
+                            <AlertDialogHeader >
+                              <AlertDialogTitle className='text-end'>تأكيد الحذف</AlertDialogTitle>
+                              <AlertDialogDescription  className='text-end'>
+                                هل أنت متأكد أنك تريد حذف هذا المنشور؟ لا يمكن التراجع بعد ذلك.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter  className='!gap-1 '> 
+                              <AlertDialogCancel className='cursor-pointer '>إلغاء</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDelete(post._id)} className='bg-[#D72229] cursor-pointer'>
+                                تأكيد الحذف
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+
+                      </div>
                     </div>
-                    <div className="d-flex items-center justify-center px-[50px] py-3">
-                      <button
-                        onClick={() => handleDelete(post._id)}
-                        className="mt-4 w-full rounded-[18px] bg-[#D72229] text-white py-3 text-sm hover:opacity-90"
-                      >
-                        حذف
-                      </button>
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </aside>
@@ -167,7 +284,7 @@ export default function PostsPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="اكتب عنوان المنشور"
-                  className="w-full !h-[50px] rounded-2xl p-4 outline-none border-0 bg-[#E6E6E6]"
+                  className="w-full !ه-[50px] rounded-2xl p-4 outline-none border-0 bg-[#E6E6E6]"
                 />
               </div>
 
@@ -201,19 +318,36 @@ export default function PostsPage() {
               </div>
 
               <div className="px-[70px]">
-                <button
-                  disabled={submitDisabled}
-                  onClick={handleAddPost}
-                  className="block mx-auto w-full rounded-[20px] bg-[#D72229] text-white px-10 py-4 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  إضافة منشور
-                </button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button
+                      disabled={submitDisabled}
+                      className="block mx-auto w-full rounded-[20px] bg-[#D72229] text-white px-10 py-4 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      إضافة منشور
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className='text-end'>تأكيد الإضافة</AlertDialogTitle>
+                      <AlertDialogDescription className='text-end'>
+                        هل تريد بالتأكيد إضافة هذا المنشور؟
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className='cursor-pointer '>إلغاء</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleAddPost} className='bg-[#D72229] cursor-pointer '>
+                        تأكيد الإضافة
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           </section>
 
           <aside className="lg:col-span-3">
-            <CustomChart apiUrl={''} staticData1={[]} staticData2={[]}/>
+            <CustomChart apiUrl={''} staticData1={[]} staticData2={[]} />
           </aside>
         </div>
       </div>
