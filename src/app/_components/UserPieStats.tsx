@@ -93,7 +93,7 @@ export default function UserPieStats({
   }, [apiData]);
 
   return (
-    <div className='flex relative h-[200px] bg-[#F6F6F6] rounded-[40px]  kpi'>
+    <div className='flex relative h-[200px] bg-[#F6F6F6] rounded-[40px]  kpi w-full'>
       <div className='bg-[#D72229] relative w-[35%] rounded-br-[40px] rounded-tl-[40px] rounded-bl-[40px] p-2 text-white'>
         <h1 className='rotate-[270deg] w-fit h-fit text-[15px] absolute top-[50%] translate-y-[-50%] left-[-15%]'>
           {sideLabel}

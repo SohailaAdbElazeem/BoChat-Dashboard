@@ -69,20 +69,6 @@ export default function VerificationPage() {
   return (
     <main className="min-h-screen bg-white" >
       <div className="mx-auto px-4 py-6 pl-[80px]">
-        {/* شريط البحث يمين */}
-        <div className="mb-4 flex justify-start" dir='rtl'>
-          <div className="flex w-full max-w-[360px] items-center gap-3 rounded-2xl bg-[#F6F6F6] p-3">
-            <div className="grid h-12 w-12 place-items-center rounded-[15px] bg-[#8989A2]/25">
-              <Search className="text-[#8989A2]" />
-            </div>
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="اكتب ما تبحث عنه"
-              className="h-12 rounded-2xl border-none bg-white/70 -inner"
-            />
-          </div>
-        </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           <section className="lg:col-span-9 space-y-6">
@@ -134,14 +120,24 @@ export default function VerificationPage() {
           </section>
 
           <aside className="lg:col-span-3 space-y-6">
-            <div className="bg-[#F6F6F6] rounded-[40px] p-5">
-              <h3 className="mb-2 text-[#D72229] text-sm font-semibold">نسبة الرفض بسبب نقص المستندات</h3>
-              <CustomChart />
+                    {/* شريط البحث يمين */}
+        <div className="mb-4 flex justify-start" dir='rtl'>
+          <div className="flex w-full max-w-[360px] items-center gap-3 rounded-2xl bg-[#F6F6F6] p-3">
+            <div className="grid h-12 w-12 place-items-center rounded-[15px] bg-[#8989A2]/25">
+              <Search className="text-[#8989A2]" />
             </div>
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="اكتب ما تبحث عنه"
+              className="h-12 rounded-2xl border-none bg-white/70 -inner"
+            />
+          </div>
+        </div>
 
             <div className="bg-[#F6F6F6] rounded-[40px] p-5">
-              <h3 className="mb-2 text-[#D72229] text-sm font-semibold">نسبة إعادة الإرسال</h3>
-              <CustomChart />
+              <h3 className="mb-2 text-[#D72229] text-sm font-semibold">نسبة الرفض بسبب نقص المستندات</h3>
+              <CustomChart apiUrl={''} staticData1={[]} staticData2={[]} />
             </div>
 
             <div className="rounded-[28px] bg-[#F6F6F6] p-6">

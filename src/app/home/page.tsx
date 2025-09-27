@@ -146,24 +146,26 @@ function MainPage() {
 
   return (
     <RequireAuth>
-      <div className="container main-page">
+      <div className="main-page">
         <div>
           <div className="mb-[15px]">
             <ActionBar />
           </div>
-          <div className="charts-container">
+          <div className="">
+            <div className='flex gap-4'>
             <UserPieStats
               apiData={apiData}
               loading={loading}
               error={error}
               title="المستخدمين النشطين"
               sideLabel="اجمالي النسب"
-            />
+              />
             <UserGrowthStats
               data={growthSeries}
               title="نمو المستخدمين حسب الأشهر"
               sideLabel="عدد المستخدمين"
-            />
+              />
+              </div>
             <LastLogins filterQuery={query}/>
           </div>
         </div>

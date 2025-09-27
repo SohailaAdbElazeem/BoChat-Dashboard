@@ -53,12 +53,11 @@ export default function ShieldsPage() {
   // ربط API (اختياري الآن). لو عندك endpoint اعمل fetch هنا:
   React.useEffect(() => {
     if (!API_BASE) return; // سيب الداتا الافتراضية
-    // مثال: غيّر المسار حسب راوتك
-    // (async () => {
-    //   const res = await fetch(`${API_BASE}/shields/accounts`, { cache: 'no-store' });
-    //   const json: Account[] = await res.json();
-    //   setAccounts(json);
-    // })();
+    (async () => {
+      const res = await fetch(`${API_BASE}/request/shields/6877d5497b04a3c83759f122`, { cache: 'no-store' });
+      const json: Account[] = await res.json();
+      setAccounts(json);
+    })();
   }, []);
 
   const filtered = React.useMemo(() => {
@@ -73,19 +72,7 @@ export default function ShieldsPage() {
   return (
     <main className="min-h-screen bg-white">
       <div className="mx-auto px-4 py-6 pl-[80px]">
-        <div className="mb-4 flex justify-end">
-          <div className="flex w-full max-w-[340px] items-center gap-3 rounded-2xl bg-[#F6F6F6] p-3" dir='rtl'>
-            <div className="grid h-12 w-15 place-items-center rounded-[15px] bg-[#8989A2]/25">
-              <Search className="text-[#8989A2]" />
-            </div>
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="اكتب ما تبحث عنه"
-              className="h-12 rounded-2xl border-none bg-white/70 -inner"
-            />
-          </div>
-        </div>
+
 
         {query && (
           <div className="mb-4 rounded-2xl border bg-[#F9FAFB] p-3 text-sm text-gray-600">
@@ -141,7 +128,20 @@ export default function ShieldsPage() {
           </section>
 
           <aside className="lg:col-span-3 space-y-6">
-            <CustomChart />
+            <div className="mb-4 flex justify-end">
+              <div className="flex w-full max-w-[340px] items-center gap-3 rounded-2xl bg-[#F6F6F6] p-3" dir='rtl'>
+                <div className="grid h-12 w-15 place-items-center rounded-[15px] bg-[#8989A2]/25">
+                  <Search className="text-[#8989A2]" />
+                </div>
+                <Input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="اكتب ما تبحث عنه"
+                  className="h-12 rounded-2xl border-none bg-white/70 -inner"
+                />
+              </div>
+            </div>
+            <CustomChart apiUrl={''} staticData1={[]} staticData2={[]} />
 
             <div className="rounded-[28px] bg-[#F6F6F6] p-6">
               <p className="mb-4 text-[#9AA0A6]">

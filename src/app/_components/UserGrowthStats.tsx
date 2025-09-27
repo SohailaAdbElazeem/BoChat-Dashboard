@@ -45,9 +45,9 @@ export default function UserGrowthStats({
   };
 
   return (
-    <div className="flex relative h-[200px] bg-[#F6F6F6] rounded-[40px] pie">
+    <div className="flex relative h-[200px] !bg-[#F6F6F6] rounded-[40px] pie  w-full ">
       <div
-        className=" relative w-[35%] rounded-br-[40px] rounded-tl-[40px] rounded-bl-[40px] p-2 text-white"
+        className=" relative min-w-[28%] rounded-br-[40px] rounded-tl-[40px] rounded-bl-[40px] p-2 text-white"
         style={{ backgroundColor: sideColor }}
       >
         <h1 className="rotate-[270deg] w-fit h-fit text-[13px] absolute top-[50%] translate-y-[-50%] left-[-18%]">
@@ -65,7 +65,7 @@ export default function UserGrowthStats({
         </div>
       </div>
 
-      <div className="flex relative flex-col items-center justify-end rounded-br-[40px] rounded-tr-[40px] flex-1">
+      <div className="flex relative flex-col items-center justify-end rounded-br-[40px] rounded-tr-[40px]  w-full">
         <h2 className="text-[15px] text-center text-[#D72229] mb-[10px]">{title}</h2>
         <div className="absolute top-2 right-3 rounded-xl bg-white/90 shadow px-3 py-2 text-[12px]" dir="rtl">
           <div className="font-semibold text-[#D72229]">{selected.month || '—'}</div>
@@ -74,7 +74,7 @@ export default function UserGrowthStats({
           </div>
         </div>
 
-        <ResponsiveContainer className="relative flex items-center" width={380} height={120}>
+        <ResponsiveContainer className="relative flex items-center w-full" width={300} height={120}>
           <LineChart data={data}>
             <Line
               type="monotone"

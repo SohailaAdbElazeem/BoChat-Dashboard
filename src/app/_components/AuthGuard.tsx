@@ -55,13 +55,11 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // 5) جهّز تايمر لتجديد التوكن قبل الانتهاء بشوية (10 ثواني)
       if (!cancelled) setReady(true);
     }
 
     run();
 
-    // خروجات نظيفة
     return () => {
       cancelled = true;
       if (timerRef.current) window.clearTimeout(timerRef.current);

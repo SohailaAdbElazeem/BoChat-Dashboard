@@ -220,7 +220,7 @@ export default function LastLogins({
   }, [apiRows, filterQuery]);
 
   return (
-    <section className="!w-full logins-table ">
+    <section className="!w-full logins-table max-h-[600px] overflow-y-hidden">
       <header className="mb-3">
         <h2 className="text-rose-600 text-lg font-semibold" dir="rtl">
           {title}
@@ -240,7 +240,7 @@ export default function LastLogins({
       )}
 
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white " dir="rtl">
-        <div className="max-h-[420px] overflow-auto scrollbar-hidden">
+        <div className="max-h-[620px] overflow-auto scrollbar-hidden">
           <table className="min-w-full text-sm">
             <thead className="sticky top-0 z-10 bg-rose-50/60 backdrop-blur supports-[backdrop-filter]:bg-rose-50/50">
               <tr className="text-gray-600">

@@ -90,7 +90,7 @@ function LoginForm() {
                 type={showPassword ? "text" : "password"} // يتم تغيير الـ type بين text و password بناءً على الحالة
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="border border-[#8989a28c] px-4 pr-[50px] rounded-[14px] w-full h-[55px] focus:outline-none focus:ring-2 focus:ring-[#D7222926] focus:border-[#D72229] dark:placeholder:text-[#000]"
+                className="border border-[#8989a28c] px-4 pr-[30px] rounded-[14px] w-full h-[55px] focus:outline-none focus:ring-2 focus:ring-[#D7222926] focus:border-[#D72229] dark:placeholder:text-[#000]"
                 placeholder="كلمة السر"
                 required
               />
