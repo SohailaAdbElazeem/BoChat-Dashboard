@@ -3,6 +3,7 @@
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
+  const URL = process.env.NEXT_PUBLIC_API_BASE
 
 export async function GET(req: Request) {
   try {
@@ -33,7 +34,7 @@ export async function GET(req: Request) {
     const controller = new AbortController();
     const t = setTimeout(() => controller.abort(), 10000); // timeout 10s
 
-    const upstream = await fetch("http://bo-chat.space/reactStatistics", {
+    const upstream = await fetch(`${URL}/reactStatistics`, {
       method: "GET",
       headers: upstreamHeaders,
       cache: "no-store",

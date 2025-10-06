@@ -118,7 +118,7 @@ export default function UsersPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         }
-      }).then(res=> res.json()).then(data=> console.log(data))
+      }).then(res=> res.json())
 
 
     if (didRun.current) return;

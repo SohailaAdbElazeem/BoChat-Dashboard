@@ -21,9 +21,10 @@ export type RegistrationRow = {
   banDurationLabel: string; // مثال: "أسبوع" / "يومين" / "شهر"
   unbanned?: boolean;
 };
+const URL = process.env.NEXT_PUBLIC_API_BASE
 
-const ENDPOINT_LIST = 'https://bo-chat.space/dashboard/bannedUsers';
-const ENDPOINT_UNBAN = 'https://bo-chat.space/unbanTill';
+const ENDPOINT_LIST = `${URL}/dashboard/bannedUsers`;
+const ENDPOINT_UNBAN = `${URL}/unbanTill`;
 const ADMIN_EMAIL = 'bo-chat@gmail.com';
 
 /* ===== Helpers ===== */
@@ -228,7 +229,6 @@ export default function BlockedAccountsPage() {
     async (id: string) => {
       try {
         setBusyId(id);
-        // payload الشائع عندك (userid + adminemail)
         const body = { userid: id, adminemail: ADMIN_EMAIL };
 
         await safeFetchJSON(ENDPOINT_UNBAN, {
@@ -238,15 +238,13 @@ export default function BlockedAccountsPage() {
           mode: 'cors',
         });
 
-        // تحديث الواجهة: إمّا نشيل الكارت، أو نعلّم عليه unbanned
         setRows((prev) =>
           prev
-            .filter((r) => r.id !== id) // شيله
+            .filter((r) => r.id !== id)
             .map((r) => (r.id === id ? { ...r, unbanned: true, status: 'active' } : r)),
         );
       } catch (e) {
         console.error('❌ unban error:', e);
-        // ممكن تضيف Toast/Alert حسب نظامك
       } finally {
         setBusyId(null);
       }
@@ -258,17 +256,14 @@ export default function BlockedAccountsPage() {
 
   return (
     <main className="py-6 pr-[10px] ">
-      {/* شريط الفلاتر */}
       <div className="mb-6" dir="rtl">
         <FilterBar rows={rows} filters={filters} onChange={setFilters} />
       </div>
 
-      {/* العنوان */}
       <div className="mb-4 text-[#E02020] font-semibold text-lg text-end">
         الحسابات المحظورة
       </div>
 
-      {/* حالات التحميل/الخطأ */}
       {loading && (
         <div className="mb-4 rounded-2xl bg-[#EDEDED] p-4 text-center text-sm text-gray-600">
           جاري التحميل…

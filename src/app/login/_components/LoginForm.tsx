@@ -15,47 +15,49 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMsg('');
-    setSuccessMsg('');
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  setErrorMsg('');
+  setSuccessMsg('');
+  const URL = process.env.NEXT_PUBLIC_API_BASE
+  try {
+    const response = await fetch(`${URL}/dashboard/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        useremail,
+        password,
+      }),
+    });
 
-    try {
-      const response = await fetch('https://bo-chat.space/dashboard/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          useremail,
-          password,
-        }),
-      });
+    const data = await response.json();
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data?.message || 'بيانات الدخول غير صحيحة !');
-      }
-
-      if (!data.token) {
-        throw new Error('التوكن غير موجود في الرد!');
-      }
-
-      localStorage.setItem('token', data.token);
-      setSuccessMsg('تم تسجيل الدخول بنجاح !');
-      
-      setTimeout(() => {
-        router.push('/');
-      }, 2000);
-
-    } catch (err: unknown) {
-      setErrorMsg(err.message || 'فشل تسجيل الدخول !');
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      throw new Error(data?.message || 'بيانات الدخول غير صحيحة !');
     }
-  };
+
+    if (!data.token) {
+      throw new Error('التوكن غير موجود في الرد!');
+    }
+
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('userid', data.data.userid);
+    setSuccessMsg('تم تسجيل الدخول بنجاح !');
+
+    setTimeout(() => {
+      router.push('/');
+    }, 2000);
+
+  } catch (err: any) {
+    setErrorMsg(err.message || 'فشل تسجيل الدخول !');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="flex items-center justify-center min-h-[80vh] px-4">
@@ -72,9 +74,9 @@ function LoginForm() {
         </Alert>
       )}
       
-      <div className="relative w-full max-w-[500px]">
-        <div className="absolute inset-0 bg-[#D7222926] w-[580] rounded-[14px] translate-x-[-40px] translate-y-[50px] -z-10 hide-this"></div>
-        <div className="login-wrapper bg-white p-8 sm:p-[60px] relative rounded-[14px] -md flex flex-col items-center gap-6">
+      <div className="relative w-full max-w-[500px] ">
+        <div className="absolute inset-0 bg-[#D7222926]  w-[580] rounded-[14px] translate-x-[-40px] translate-y-[50px] -z-10 hide-this"></div>
+        <div className="login-wrapper shadow-sm bg-white p-8 sm:p-[60px] relative rounded-[14px] -md flex flex-col items-center gap-6">
           <h1 className="text-[#D72229] text-[22px]">تسجيل الدخول</h1>
           <form dir="rtl" className="w-full flex flex-col gap-4" onSubmit={handleSubmit}>
             <input
@@ -85,7 +87,7 @@ function LoginForm() {
               placeholder="الإيميل"
               required
             />
-            <div className="relative">
+            <div className="relative ">
               <input
                 type={showPassword ? "text" : "password"} // يتم تغيير الـ type بين text و password بناءً على الحالة
                 value={password}

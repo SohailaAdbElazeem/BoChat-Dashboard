@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input';
 
 type Account = { id: string; name: string; email: string };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || ''; // مثال: 'https://api.yourdomain.com'
 
 export default function ShieldsPage() {
   // ---- داتا الشارتس (نفس اللي عندك)
@@ -50,15 +49,7 @@ export default function ShieldsPage() {
     { id: '3', name: 'Yasser El Helw',   email: 'yasser@example.com' },
   ]);
 
-  // ربط API (اختياري الآن). لو عندك endpoint اعمل fetch هنا:
-  React.useEffect(() => {
-    if (!API_BASE) return; // سيب الداتا الافتراضية
-    (async () => {
-      const res = await fetch(`${API_BASE}/request/shields/6877d5497b04a3c83759f122`, { cache: 'no-store' });
-      const json: Account[] = await res.json();
-      setAccounts(json);
-    })();
-  }, []);
+
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();

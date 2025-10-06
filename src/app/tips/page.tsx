@@ -37,12 +37,13 @@ export default function PostsPage() {
 
   const niceTime = (d: string | Date) =>
     new Date(d).toLocaleString('ar-EG', { hour: '2-digit', minute: '2-digit', year: 'numeric', month: '2-digit', day: '2-digit' });
-
+const apiURL = process.env.NEXT_PUBLIC_API_BASE
+const adminId = localStorage.getItem("userid")
   // === جلب التحديثات ===
   useEffect(() => {
     if (!token) return;
 
-    fetch('https://bo-chat.space/dashboard/get-app-updates/6877d5497b04a3c83759f122', {
+    fetch(`${apiURL}/dashboard/get-app-updates/${adminId}`, {
       method: 'GET',
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -66,7 +67,7 @@ export default function PostsPage() {
       if (title.trim()) fd.append('title', title.trim());
       if (file) fd.append('file', file);
 
-      const res = await fetch('http://bo-chat.space/dashboard/update-app', {
+      const res = await fetch(`${apiURL}/dashboard/update-app`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` } as any,
         body: fd,
@@ -128,22 +129,21 @@ export default function PostsPage() {
       return;
     }
 
-    // حاول استخراج adminid من التوكن أو من localStorage
     const payload = decodeJwt<any>(token) || {};
     const adminIdFromToken =
       payload.adminid || payload.adminId || payload.userId || payload.userid || payload.id || null;
 
     const adminId =
-      (typeof window !== 'undefined' ? localStorage.getItem('adminid') : null) ||
+      (typeof window !== 'undefined' ? localStorage.getItem('userid') : null) ||
       adminIdFromToken ||
-      '686695914211804ef3875338'; // بدّلها لو عندك قيمة مؤكدة
+      ''; // بدّلها لو عندك قيمة مؤكدة
 
     // optimistic update
     setDeletingIds((prev) => new Set(prev).add(id));
     const prevPosts = posts;
     setPosts((p) => p.filter((x) => x._id !== id));
 
-    const url = 'http://bo-chat.space/dashboard/del-app-update';
+    const url = `${apiURL}/dashboard/del-app-update`;
 
     try {
       // 1) DELETE + JSON
@@ -211,7 +211,6 @@ export default function PostsPage() {
     <main className="min-h-screen bg-white">
       <div className="mx-auto px-4 py-8 pl-[80px]">
         <div className="grid grid-cols-1 gap-9 lg:grid-cols-12">
-          {/* القائمة اليمنى: البوستات */}
           <aside className="lg:col-span-4">
             <div className="space-y-6 pl-[40px] max-h-[100vh] overflow-scroll scrollbar-hidden">
               {posts.length === 0 ? (

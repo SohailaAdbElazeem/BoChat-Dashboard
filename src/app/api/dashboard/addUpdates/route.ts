@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic'; // لو محتاج
 export async function POST(req: NextRequest) {
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE 
   try {
     // التحقق من التوكن من الهيدر
     const auth = req.headers.get('authorization') || '';
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest) {
     const form = await req.formData();
 
     // ابعت للأبستريم (غيّر للـ https لو متاح)
-    const upstream = await fetch('http://bo-chat.space/dashboard/update-app', {
+    const upstream = await fetch(`${API_BASE}/dashboard/update-app`, {
       method: 'POST',
       headers: { Authorization: auth }, // مرر نفس التوكن
       body: form,

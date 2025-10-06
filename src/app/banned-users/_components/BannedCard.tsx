@@ -4,7 +4,8 @@
 import { Button } from "@/components/ui/button";
 import { useEffect, useState, useCallback, useMemo } from "react";
 
-const BASE = "https://bo-chat.space";
+const BASE = process.env.NEXT_PUBLIC_API_BASE
+;
 const ADMIN_EMAIL = "bo-chat@gmail.com";
 
 type BannedUser = {
@@ -95,11 +96,9 @@ export function BannedCard() {
     async (userId: string) => {
       try {
         setUnbanningId(userId);
-
-        // هنجرّب http ثم https، ونبعت body: { userid, adminemail }
         const candidates = [
-          "http://bo-chat.space/unbanTill",
-          "https://bo-chat.space/unbanTill",
+         `${BASE}/unbanTill`,
+          `${BASE}/unbanTill`,
         ];
 
         let lastErr: any = null;
@@ -128,7 +127,6 @@ export function BannedCard() {
       } catch (e) {
         console.error("❌ Unban error:", e);
         setUnbanningId(null);
-        // ممكن تضيف toast أو رسالة لو حابب
       }
     },
     [headers]

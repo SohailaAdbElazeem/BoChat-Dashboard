@@ -4,6 +4,7 @@ import http from "http"; // لأن الـ upstream http مش https
 // لو كان https: import https from "https";
 
 export const runtime = "nodejs"; // مهم
+  const apiURL = process.env.NEXT_PUBLIC_API_BASE
 
 function getWithBody(urlStr: string, headers: Record<string, string>, bodyObj: any) {
   return new Promise<{ status: number; text: string }>((resolve, reject) => {
@@ -46,7 +47,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ err: "missing userid or token" }, { status: 400 });
     }
 
-    const upstreamUrl = "http://bo-chat.space/dashboard/get-app-updates";
+    const upstreamUrl = `${apiURL}/dashboard/get-app-updates`;
 
     const { status, text } = await getWithBody(
       upstreamUrl,

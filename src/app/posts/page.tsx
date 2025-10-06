@@ -6,6 +6,9 @@ import FilterBar, { type Filters } from '../_components/FilterBar';
 import UserGrowthMultiStats from '../_components/UserGrowthMultiStats';
 import RegistrationsTable from '../_components/PostsTable';
 
+
+const URL = process.env.NEXT_PUBLIC_API_BASE
+
 /** نوع الصف اللي جدول PostsTable مستنيه */
 export type RegistrationRow = {
   no: number;
@@ -52,6 +55,9 @@ const norm = (v: unknown) =>
     .replace(/\s+/g, ' ')
     .trim()
     .normalize('NFKD');
+
+
+
 
 function applyFilters(rows: RegistrationRow[], filters: Filters) {
   const q = norm(filters.query);
@@ -215,12 +221,10 @@ export default function PostsPage() {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       };
-
+      
       const endpoints = [
-        'https://bo-chat.space/dashboard/posts',
-        'http://bo-chat.space/dashboard/posts',
-        'https://bo-chat.space/posts',
-        'http://bo-chat.space/posts',
+        `${URL}/dashboard/posts`,
+        `${URL}/dashboard/posts`,
       ];
 
       try {

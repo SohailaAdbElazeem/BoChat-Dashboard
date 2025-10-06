@@ -1,14 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import FilterBar, { Filters } from '@/app/_components/FilterBar';
+const adminId = localStorage.getItem("userid")
 
 /* ================= أنواع البيانات ================= */
 type ShieldStatus = 'pending' | 'approved' | 'rejected' | 'charged' | 'awaiting-charge';
-
 type ShieldRequest = {
   id: string;
   email: string;
@@ -27,7 +28,7 @@ type ShieldRequest = {
   gender?: string;
   role?: string;
 
-  // جديد: هنحتاجه في API القبول
+  // مهم: راجع من API الrequests وهنبعته مع accept
   userid?: string;
 };
 
@@ -53,12 +54,21 @@ function ShieldRequestCard({
   onApprove,
   onReject,
   onCharge,
+  busy,
 }: {
   req: ShieldRequest;
   onApprove: (id: string) => Promise<void>;
   onReject: (id: string) => Promise<void>;
   onCharge: (id: string) => Promise<void>;
+  busy?: boolean;
 }) {
+  const shieldImg =
+    req.shieldType === '5000'
+      ? '/imgs/bronze.svg'
+      : req.shieldType === '10000'
+      ? '/imgs/silver.svg'
+      : '/imgs/default.svg';
+
   return (
     <div className="rounded-[34px] bg-[#F6F6F6] p-4">
       <div className="mb-3 text-center font-semibold text-[#D72229]">معلومات الحساب</div>
@@ -114,29 +124,44 @@ function ShieldRequestCard({
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 flex-1 items-center justify-center rounded-[18px] bg-[#E6E6E6] text-[15px] text-[#6B7280]">
-            تاريخ الموافقة: {formatDate(req.approvedAt)}
+        <div className="flex items-center rounded-[18px]">
+          <div className="h-[80px] w-[80px] rounded-[8px]">
+            <img src={shieldImg} alt="shield" className="w-full h-full object-cover" />
           </div>
-          <div className="flex h-10 flex-1 items-center justify-center rounded-[18px] bg-[#E6E6E6] text-[15px] text-[#6B7280]">
-            تاريخ شحن الدرع: {formatDate(req.chargeDate)}
-          </div>
-          <div className="h-[46px] w-[46px] overflow-hidden rounded-[10px] border bg-white">
-            {req.idImageUrl ? (
-              <Image src={req.idImageUrl} alt="ID" width={46} height={46} className="h-full w-full object-cover" />
-            ) : null}
+          <div className="bg-[#D72229]/10 w-full h-fit flex flex-col items-start p-3 rounded-tl-[18px] rounded-bl-[18px]">
+            <div className="flex h-8 flex-1 items-center justify-center rounded-[18px] text-[15px] text-[#6B7280]">
+              تاريخ الموافقة: {formatDate(req.approvedAt)}
+            </div>
+            <div className="flex h-8 flex-1 items-center justify-center rounded-[18px] text-[15px] text-[#6B7280]">
+              تاريخ شحن الدرع: {formatDate(req.chargeDate)}
+            </div>
           </div>
         </div>
 
-        <div className="mt-3 grid grid-cols-3 gap-2">
-          <button onClick={() => onCharge(req.id)} className="rounded-full border-1 border-[#D72229] py-2 text-[#D72229]">
-            الشحن
+        <div className="mt-3 grid grid-cols-3 gap-2" >
+          <button
+            onClick={() => onApprove(req.id)}
+            className="rounded-[20px] cursor-pointer bg-[#D72229] py-3 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={busy}
+            aria-disabled={busy}
+          >
+            الموافقة
           </button>
-          <button onClick={() => onReject(req.id)} className="rounded-full bg-[#D72229] py-2 text-white">
+          <button
+            onClick={() => onReject(req.id)}
+            className="rounded-[20px] cursor-pointer bg-[#D72229] py-3 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={busy}
+            aria-disabled={busy}
+          >
             رفض
           </button>
-          <button onClick={() => onApprove(req.id)} className="rounded-full bg-[#D72229] py-2 text-white">
-            تم الموافقة
+          <button
+            onClick={() => onCharge(req.id)}
+            className="rounded-[20px] cursor-pointer border-1 border-[#D72229] py-3 text-[#D72229] disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={busy}
+            aria-disabled={busy}
+          >
+            الشحن
           </button>
         </div>
       </div>
@@ -150,32 +175,20 @@ export default function ShieldRequestsPage() {
   const [rows, setRows] = useState<ShieldRequest[]>([]);
   const [filters, setFilters] = useState<Filters>({ query: '' });
   const [error, setError] = useState<string>('');
+  const [busy, setBusy] = useState<string | null>(null); // يمسك id أثناء الطلب لمنع سبام
 
-  // helper لعمل API_BASE (اختياري)
-  const API_BASE =
-    (process.env.NEXT_PUBLIC_API_BASE && /^https?:\/\//i.test(process.env.NEXT_PUBLIC_API_BASE)
-      ? process.env.NEXT_PUBLIC_API_BASE.replace(/\/+$/, '')
-      : process.env.NEXT_PUBLIC_API_BASE
-      ? `http://${process.env.NEXT_PUBLIC_API_BASE.replace(/\/+$/, '')}`
-      : '') || '';
+  const API_BASE =process.env.NEXT_PUBLIC_API_BASE 
 
-  // جلب البيانات من الـ API بالتوكن من localStorage
+
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
         setLoading(true);
         setError('');
-
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
         if (!token) throw new Error('لا يوجد توكن في المتصفح. من فضلك سجّل الدخول.');
-
-        // لو محددتش NEXT_PUBLIC_API_BASE هنستخدم الرابط الكامل كـ fallback
-        const url =
-          API_BASE
-            ? `${API_BASE}/request/shields/6877d5497b04a3c83759f122`
-            : `http://bo-chat.space/request/shields/6877d5497b04a3c83759f122`;
-
+        const url =`${API_BASE}/request/shields/${adminId}`;
         const res = await fetch(url, {
           method: 'GET',
           cache: 'no-store',
@@ -190,7 +203,6 @@ export default function ShieldRequestsPage() {
         const raw = await res.json();
         const arr: any[] = Array.isArray(raw) ? raw : [raw];
 
-        // ماب → ShieldRequest
         const mapped: ShieldRequest[] = arr.map((it) => {
           const fullName = (it.full_name || it.username || it.userid || '').toString().trim();
           const country = (it.country || '').toString().trim();
@@ -215,7 +227,7 @@ export default function ShieldRequestsPage() {
             governorate: undefined,
             gender: undefined,
             role: undefined,
-            userid: it.userid, // مهم لنداء القَبول
+            userid: it.userid, // 👈 مهم لنداء القَبول
           };
         });
 
@@ -293,98 +305,66 @@ export default function ShieldRequestsPage() {
   const patchLocal = (id: string, patch: Partial<ShieldRequest>) =>
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
 
-  // ====== زر "تم الموافقة" → POST /request/shield/accept ======
-// ===== helper: فكّ الـ JWT وطباعة الـ claims (للدِيبَج) =====
-function parseJwt(token?: string | null) {
-  try {
-    if (!token) return null;
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    return JSON.parse(jsonPayload);
-  } catch {
-    return null;
-  }
-}
+  // ====== موافقة → POST /request/shield/accept ======
+  const onApprove = async (id: string) => {
+    const row = rows.find((r) => r.id === id);
+    if (!row) return;
 
-// ===== اختر هوست الإكشن من ENV وإلا فولباك مناسب =====
-const ACTION_BASE =
-  process.env.NEXT_PUBLIC_ACTION_BASE // مثلاً http://localhost:4000
-    ? process.env.NEXT_PUBLIC_ACTION_BASE.replace(/\/+$/, '')
-    : (typeof window !== 'undefined' && window.location.hostname === 'localhost')
-    ? 'http://localhost:4000'
-    : 'http://bo-chat.space';
-
-const onApprove = async (id: string) => {
-  const row = rows.find((r) => r.id === id);
-  if (!row) return;
-
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-  if (!token) {
-    console.error('No token found in localStorage.');
-    alert('لا يوجد توكن — من فضلك سجّل الدخول.');
-    return;
-  }
-  if (!row.userid) {
-    console.error('Missing userid on row; cannot accept.');
-    alert('لا يوجد userid في العنصر — لا يمكن الإرسال.');
-    return;
-  }
-
-  // اطبع الكليمز لفحص الدور/الصلاحيات
-  const claims = parseJwt(token);
-  console.log('[JWT claims]', claims);
-
-  try {
-    const res = await fetch(`${ACTION_BASE}/request/shield/accept`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        userid: row.userid, // من الداتا الراجعة
-        requestid: id,      // هو نفسه _id اللي اتحوّل لـ id
-      }),
-    });
-
-    const text = await res.text().catch(() => '');
-    // حاول نفك JSON إن أمكن
-    let payload: any = null;
-    try { payload = text ? JSON.parse(text) : null; } catch {}
-
-    if (!res.ok) {
-      // رجّع رسالة السيرفر لو متاحة
-      const msg =
-        (payload && (payload.message || payload.case)) ||
-        text ||
-        res.statusText ||
-        'Request failed';
-      console.error('Accept failed:', res.status, msg);
-      alert(`فشل القبول: ${msg}`);
+    const tk = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (!tk) {
+      alert('لا يوجد توكن — من فضلك سجّل الدخول.');
+      return;
+    }
+    if (!row.userid) {
+      alert('userid غير موجود على هذا الطلب — لا يمكن الإرسال.');
       return;
     }
 
-    // Success → حدّث الواجهة
-    patchLocal(id, { status: 'approved', approvedAt: new Date().toISOString() });
-  } catch (e: any) {
-    console.error('accept failed (network):', e);
-    alert('حدث خطأ في الاتصال بالسيرفر.');
-  }
-};
+    try {
+      setBusy(id);
 
+      const res = await fetch(`${API_BASE}/request/shield/accept`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${tk}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userid: row.userid,
+          requestid: row.id,
+        }),
+      });
 
-  // رفض (محلي فقط حالياً)
+      const text = await res.text().catch(() => '');
+      let payload: any = null;
+      try { payload = text ? JSON.parse(text) : null; } catch {}
+
+      if (!res.ok) {
+        const msg =
+          (payload && (payload.message || payload.case)) ||
+          text ||
+          res.statusText ||
+          'Request failed';
+        console.error('Accept failed:', res.status, msg);
+        alert(`فشل القبول: ${msg}`);
+        return;
+      }
+
+      patchLocal(id, { status: 'approved', approvedAt: new Date().toISOString() });
+    } catch (e: any) {
+      console.error('accept failed (network):', e);
+      alert('حدث خطأ في الاتصال بالسيرفر.');
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  // رفض (محلي)
   const onReject = async (id: string) => {
     patchLocal(id, { status: 'rejected' });
   };
 
-  // شحن (محلي فقط حالياً)
+  // شحن (محلي)
   const onCharge = async (id: string) => {
     patchLocal(id, { status: 'charged', chargeDate: new Date().toISOString() });
   };
@@ -401,7 +381,6 @@ const onApprove = async (id: string) => {
 
         <FilterBar rows={registrationRows} filters={filters} onChange={setFilters} />
 
-        {/* حالات التحميل/الخطأ */}
         {loading && (
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -415,7 +394,6 @@ const onApprove = async (id: string) => {
           </div>
         )}
 
-        {/* المحتوى */}
         {!loading && !error && (
           filtered.length === 0 ? (
             <div className="py-20 text-center text-gray-500">لا توجد نتائج مطابقة حالياً</div>
@@ -428,6 +406,7 @@ const onApprove = async (id: string) => {
                   onApprove={onApprove}
                   onReject={onReject}
                   onCharge={onCharge}
+                  busy={busy === req.id}
                 />
               ))}
             </div>

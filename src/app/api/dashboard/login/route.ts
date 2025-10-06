@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
     const body = await req.json();
     console.log("Received body from frontend:", body);
-    const URL = process.env.BASE_URL
+    const URL = process.env.NEXT_PUBLIC_API_BASE
   try {
-    const res = await fetch(`${URL}login`, {
+    const res = await fetch(`${URL}/dashboard/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
