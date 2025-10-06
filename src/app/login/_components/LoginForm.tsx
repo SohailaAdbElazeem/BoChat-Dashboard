@@ -43,7 +43,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       throw new Error('التوكن غير موجود في الرد!');
     }
 
-    localStorage.setItem('token', data.token);
+    localStorage.setItem('token', data.token.accessToken);
     localStorage.setItem('userid', data.data.userid);
     setSuccessMsg('تم تسجيل الدخول بنجاح !');
 
