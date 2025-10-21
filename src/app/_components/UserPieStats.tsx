@@ -46,24 +46,21 @@ export function transformResponse(res: {
   const publisher = Number(res.publisher ?? 0);
   const unPublisher = Number(res.unPublisher ?? 0);
 
-  // ترتيب ثابت للألوان:
   // [أحمر, أخضر, أصفر, أزرق] => [غير نشط, نشط, غير ناشرين, ناشرون]
-  const rawData: ChartItem[] = [
+  const data: ChartItem[] = [
+    { name: 'الكل', value: active },        // (لو كنت تقصد "نشط" بدل "الكل")
     { name: 'غير نشط', value: unActive },
-    { name: 'نشط', value: active },
     { name: 'غير ناشرين', value: unPublisher },
     { name: 'ناشرون', value: publisher },
   ];
 
-  const data = rawData.filter(d => Number.isFinite(d.value) && d.value > 0);
-
-  // احسب "نسبة الناشرين"
   const publisherTotal = publisher + unPublisher;
   const percentageLabel =
     publisherTotal > 0 ? `${Math.round((publisher / publisherTotal) * 100)}%` : '--';
 
   return { data, percentageLabel };
 }
+
 
 export interface UserPieStatsProps {
   apiData: ApiResponse | null;
@@ -95,7 +92,7 @@ export default function UserPieStats({
   return (
     <div className='flex relative h-[200px] bg-[#F6F6F6] rounded-[40px]  kpi w-full'>
       <div className='bg-[#D72229] relative w-[35%] rounded-br-[40px] rounded-tl-[40px] rounded-bl-[40px] p-2 text-white'>
-        <h1 className='rotate-[270deg] w-fit h-fit text-[15px] absolute top-[50%] translate-y-[-50%] left-[-15%]'>
+        <h1 className='rotate-[270deg] w-fit h-fit text-[15px] absolute top-[50%] translate-y-[-50%] left-[-12%]'>
           {sideLabel}
         </h1>
 

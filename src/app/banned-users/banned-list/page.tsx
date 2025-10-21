@@ -3,7 +3,9 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import FilterBar, { type Filters } from '@/app/_components/FilterBar';
-import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import { Router } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 /** نفس النوع المستخدم في FilterBar */
 export type RegistrationRow = {
@@ -117,7 +119,7 @@ function BlockCard({
   unbanning: boolean;
 }) {
   const fieldBox =
-    'h-9 w-full rounded-xl bg-[#EDEDED] text-[13px] text-[#7A7A7A] flex items-center px-3';
+    'relative mb-2 flex items-center justify-between overflow-hidden rounded-[18px] bg-[#E6E6E6] px-[20px] py-[15px]';
   return (
     <div className="rounded-[24px] bg-[#F6F6F6] p-5  border  border-[#F0F0F0]">
       <div className="text-center text-[#E73E3E] font-semibold mb-4">معلومات الحساب</div>
@@ -136,12 +138,12 @@ function BlockCard({
           <span className="truncate">{row.banDurationLabel}</span>
         </div>
       </div>
-
+    <div className='flex items-center justify-center'>
       <button
         disabled={row.unbanned || unbanning}
         onClick={() => onUnban(row.id)}
         className={[
-          'mt-4 h-10 w-full rounded-[14px] text-white font-medium transition',
+          'mt-4 w-70 px-5 !py-4 flex items-center justify-center   rounded-[20px] text-white font-medium transition',
           row.unbanned || unbanning
             ? 'bg-[#FFF] !text-[#E02020] cursor-default opacity-60'
             : 'bg-[#E02020] hover:opacity-90',
@@ -149,6 +151,8 @@ function BlockCard({
       >
         {row.unbanned ? 'تم إلغاء الحظر' : unbanning ? 'جارٍ فك الحظر…' : 'إلغاء الحظر'}
       </button>
+    </div>
+
     </div>
   );
 }
@@ -253,15 +257,16 @@ export default function BlockedAccountsPage() {
   );
 
   const filtered = useMemo(() => applyFilters(rows, filters), [rows, filters]);
-
+  const router = useRouter();
   return (
     <main className="py-6 pr-[10px] ">
       <div className="mb-6" dir="rtl">
         <FilterBar rows={rows} filters={filters} onChange={setFilters} />
       </div>
 
-      <div className="mb-4 text-[#E02020] font-semibold text-lg text-end">
-        الحسابات المحظورة
+      <div className="mb-4 text-[#E02020] flex items-center justify-between font-semibold text-lg text-end pl-[80px]" dir='rtl'>
+       <h4> الحسابات المحظورة</h4>
+       <div  onClick={() => router.back()}> <ArrowLeft className='text-red'/> </div>
       </div>
 
       {loading && (

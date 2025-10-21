@@ -32,7 +32,7 @@ export default function SearchBar({
   dir = 'rtl',
   className = '',
   icon,
-  maxWidthClass = 'max-w-[360px]',
+  maxWidthClass = '',
 }: SearchBarProps) {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && onSubmit) {

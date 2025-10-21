@@ -15,7 +15,6 @@ export type RegistrationRow = {
   userimg: string;
   userName: string;
   id: string;
-  status: 'نشط' | 'محظور' | 'معلق' | string;
   publishedAgo: string;
   likes: number;
   comments: number;
@@ -63,7 +62,6 @@ function applyFilters(rows: RegistrationRow[], filters: Filters) {
   const q = norm(filters.query);
   return rows.filter((r) => {
     if (filters.type && r.type !== filters.type) return false;
-    if (filters.status && r.status !== filters.status) return false;
     if (filters.country && r.country !== filters.country) return false;
     if (filters.governorate && r.governorate !== filters.governorate) return false;
     if (filters.gender && r.gender !== filters.gender) return false;
@@ -77,7 +75,6 @@ function applyFilters(rows: RegistrationRow[], filters: Filters) {
         r.emailOrPhone,
         r.id,
         r.type,
-        r.status,
         r.country,
         r.governorate,
         r.gender,
@@ -148,8 +145,7 @@ function pickImages(p: any): string[] {
 
 function mapPostToRow(p: any, i: number): RegistrationRow {
   const u = p?.user || p?.owner || {};
-  const status: RegistrationRow['status'] =
-    p?.status === 'pending' || p?.underReview ? 'معلق' : p?.isBlocked ? 'محظور' : 'نشط';
+  
 
   const gender: RegistrationRow['gender'] =
     u?.gender === 0 ? 'ذكر' : u?.gender === 1 ? 'أنثى' : undefined;
@@ -159,7 +155,6 @@ function mapPostToRow(p: any, i: number): RegistrationRow {
     avatar: u?.userimg || p?.userimg || '/avatar-placeholder.png',
     userName: u?.username || u?.name || p?.username || p?.name || '—',
     id: p?._id || p?.id || '—',
-    status,
     publishedAgo: formatAgo(p?.createdAt || p?.postedAt || p?.date || p?.timestamp),
     likes:
       typeof p?.likesCount === 'number'

@@ -32,7 +32,7 @@ export default function RegistrationsTable({ rows }: Props) {
 
   return (
     <div className="w-full overflow-x-auto overflow-y-hidden rounded-3xl border border-[#eee] bg-white">
-      <div className='max-h-[300px] overflow-auto scrollbar-hidden'>
+      <div className='max-h-[500px] overflow-auto scrollbar-hidden'>
         <table className="min-w-full text-right" dir="ltr">
           <thead className="bg-[#FDECEE] text-[#D72229] sticky top-0 z-10">
             <tr className="text-sm">
@@ -43,7 +43,7 @@ export default function RegistrationsTable({ rows }: Props) {
               <th className="p-3">تعليقات</th>
               <th className="p-3">إعجابات</th>
               <th className="p-3">نشر البوست</th>
-              <th className="p-3">الحالة</th>
+              {rows?.status ? <th className="p-3">الحالة</th>:""}
               <th className="p-3">id</th>
               <th className="p-3">اسم المستخدم</th>
               <th className="p-3">صورة</th>
@@ -105,7 +105,7 @@ export default function RegistrationsTable({ rows }: Props) {
                 <td className="p-3">{r.comments}</td>
                 <td className="p-3">{r.likes}</td>
                 <td className="p-3">{r.publishedAgo}</td>
-
+              {r.status ? 
                 <td className="p-3">
                   <span
                     className={[
@@ -120,7 +120,7 @@ export default function RegistrationsTable({ rows }: Props) {
                     {r.status}
                   </span>
                 </td>
-
+              :""}
                 <td className="p-3">{r.id}</td>
                 <td className="p-3">{r.userName}</td>
                 <td className="p-3 flex items-center justify-center ">
@@ -129,7 +129,6 @@ export default function RegistrationsTable({ rows }: Props) {
                   </div>
                 </td>
                 <td className="p-3">{r.no}</td>
-
               </tr>
             ))}
           </tbody>

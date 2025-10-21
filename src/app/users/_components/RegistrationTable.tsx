@@ -124,8 +124,9 @@ export default function RegistrationTable({
                         <DropdownMenuItem
                           className="cursor-pointer text-[18px] text-rose-700 rounded-[12px] p-[10px] flex items-center justify-center"
                           onClick={(e) => {
-                            e.stopPropagation(); // ما يفعّل onRowClick
-                            router.push(`/banned-users?userid=${encodeURIComponent(r.id)}`);
+                            e.stopPropagation();
+                            const url = `/banned-users?userid=${encodeURIComponent(r.id)}&name=${encodeURIComponent(r.userName)}`;
+                            router.push(url);
                           }}
                         >
                           حظر

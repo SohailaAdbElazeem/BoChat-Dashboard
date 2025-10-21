@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+
 const BASE_HTTPS = "https://bo-chat.space";
-const BASE_HTTP = "http://bo-chat.space";
+const BASE_HTTP  = "http://bo-chat.space";
 const ADMIN_EMAIL = "bo-chat@gmail.com";
 
 // Helpers
@@ -25,19 +26,24 @@ async function safeFetchJSON(input: RequestInfo, init?: RequestInit) {
 }
 
 export default function BanForm() {
-  const [userId, setUserId] = React.useState("");
-  const [name, setName] = React.useState("");
+  const [userId, setUserId]   = React.useState("");
+  const [name, setName]       = React.useState("");
   const [durDays, setDurDays] = React.useState<number | "lock">(7);
 
-  const [loading, setLoading] = React.useState(false);
-  const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
+  const [loading, setLoading]       = React.useState(false);
+  const [errorMsg, setErrorMsg]     = React.useState<string | null>(null);
   const [successMsg, setSuccessMsg] = React.useState<string | null>(null);
 
-const searchParams = useSearchParams();
-useEffect(() => {
-  const qUserId = searchParams?.get("userid") || "";
-  if (qUserId) setUserId(qUserId);
-}, [searchParams]);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const qUserId = searchParams?.get("userid") || "";
+    const qName   = searchParams?.get("name")   || "";
+
+    if (qUserId) setUserId(qUserId);
+    if (qName)   setName(qName);
+  }, [searchParams]);
+
   const getToken = () =>
     localStorage.getItem("token") ||
     localStorage.getItem("auth_token") ||
@@ -51,6 +57,15 @@ useEffect(() => {
     `${BASE_HTTP}/banTill/${days}`,
     `${BASE_HTTP}/banTill`,
   ];
+
+  const handleSuccessAndRefresh = (msg: string) => {
+    setSuccessMsg(msg);
+    // 🧹 مسح القيم من الحقول
+    setUserId("");
+    setName("");
+    // ⏱️ انتظار ثانية ثم تحديث الصفحة
+    setTimeout(() => window.location.reload(), 1000);
+  };
 
   const submit = async () => {
     setErrorMsg(null);
@@ -72,7 +87,6 @@ useEffect(() => {
         name: name || undefined,
       };
 
-      // لو اختار "قفل" يبقى API /pan
       if (durDays === "lock") {
         const candidates = [`${BASE_HTTP}/pan`, `${BASE_HTTPS}/pan`];
         let lastErr: any = null;
@@ -85,7 +99,7 @@ useEffect(() => {
               mode: "cors",
             });
             console.log("✅ Lock success:", data);
-            setSuccessMsg("تم قفل الحساب بنجاح.");
+            handleSuccessAndRefresh("تم قفل الحساب بنجاح.");
             return;
           } catch (err) {
             lastErr = err;
@@ -93,7 +107,6 @@ useEffect(() => {
         }
         throw lastErr || new Error("فشل القفل عبر كل المسارات المحتملة");
       } else {
-        // حظر بعدد أيام
         const candidates = buildBanCandidates(durDays);
         let lastErr: any = null;
         for (const url of candidates) {
@@ -105,7 +118,9 @@ useEffect(() => {
               mode: "cors",
             });
             console.log("✅ Ban success:", data);
-            setSuccessMsg(`تم حظر الحساب لمدة ${durDays} يوم${durDays > 1 ? "ًا" : ""} بنجاح.`);
+            handleSuccessAndRefresh(
+              `تم حظر الحساب لمدة ${durDays} يوم${durDays > 1 ? "ًا" : ""} بنجاح.`
+            );
             return;
           } catch (err) {
             lastErr = err;
@@ -137,12 +152,12 @@ useEffect(() => {
 
         <div>
           <Label className="mb-1 block text-right text-sm text-gray-600">
-            اسم المستخدم 
+            اسم المستخدم
           </Label>
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Name: Abdo Mohamed"
+            placeholder="Name"
             className="h-11 rounded-2xl bg-[#EDEDED] text-sm placeholder:text-gray-500"
           />
         </div>
@@ -161,10 +176,10 @@ useEffect(() => {
           <div className="mb-2 text-right text-sm font-medium text-gray-600">مدة الحظر</div>
           <div className="flex flex-wrap gap-3">
             {[
-              { d: 1, label: "يوم" },
-              { d: 2, label: "يومين" },
-              { d: 3, label: "ثلاثة أيام" },
-              { d: 7, label: "أسبوع" },
+              { d: 1,  label: "يوم" },
+              { d: 2,  label: "يومين" },
+              { d: 3,  label: "ثلاثة أيام" },
+              { d: 7,  label: "أسبوع" },
               { d: 30, label: "شهر" },
             ].map(({ d, label }) => {
               const active = d === durDays;
@@ -198,14 +213,15 @@ useEffect(() => {
             </button>
           </div>
         </div>
+
         <div className="flex items-center">
           <Button
             onClick={submit}
             disabled={disabledCommon || loading}
             className="mt-2 h-12 w-[250px] mx-auto rounded-2xl bg-[#D12D2D] text-white hover:bg-[#be2525]"
             title={getToken() ? "" : "يجب أن يكون هناك توكن في localStorage"}
-            >
-            حظر
+          >
+            {loading ? "جارِ التنفيذ..." : "حظر"}
           </Button>
         </div>
       </div>
