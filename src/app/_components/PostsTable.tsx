@@ -54,30 +54,75 @@ export default function RegistrationsTable({ rows }: Props) {
             {rows.map((r) => (
               <tr key={r.no} className="border-t text-sm hover:bg-[#fafafa]">
                 <td className="py-3 px-2 text-center">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          type="button"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-gray-100 focus:outline-none"
-                          aria-label="إجراءات"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <MoreVertical className="h-4 w-4 text-gray-600" />
-                        </button>
-                      </DropdownMenuTrigger>
+                  <DropdownMenu>
+  <DropdownMenuTrigger asChild>
+    <button
+      type="button"
+      className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-gray-100 focus:outline-none"
+      aria-label="إجراءات"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <MoreVertical className="h-4 w-4 text-gray-600" />
+    </button>
+  </DropdownMenuTrigger>
 
-                      <DropdownMenuContent align="center"  className="min-w-[140px] rounded-[15px]">
-                        <DropdownMenuItem
-                          className="cursor-pointer text-[18px] text-rose-700 rounded-[12px] p-[10px] flex items-center justify-center"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(`/banned-users?userid=${encodeURIComponent(r.id)}`);
-                          }}
-                        >
-                          حظر
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+  <DropdownMenuContent align="center" className="min-w-[140px] rounded-[15px]">
+    {/* زر الحظر */}
+    <DropdownMenuItem
+      className="cursor-pointer text-[16px] text-rose-700 rounded-[10px] p-[10px] flex items-center justify-center"
+      onClick={(e) => {
+        e.stopPropagation();
+        router.push(`/banned-users?userid=${encodeURIComponent(r.id)}`);
+      }}
+    >
+      حظر
+    </DropdownMenuItem>
+
+    {/* زر الحذف */}
+    <DropdownMenuItem
+      className="cursor-pointer text-[16px] text-red-600 rounded-[10px] p-[10px] flex items-center justify-center"
+      onClick={async (e) => {
+        e.stopPropagation();
+
+        const confirmDelete = window.confirm('هل أنت متأكد من حذف هذا البوست؟');
+        if (!confirmDelete) return;
+
+        const token =
+          localStorage.getItem('token') ||
+          localStorage.getItem('auth_token') ||
+          '';
+
+        if (!token) {
+          alert('لا يوجد توكن في المتصفح');
+          return;
+        }
+
+        try {
+          const res = await fetch(`http://bo-chat.space/dashboard/posts/${r.id}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!res.ok) {
+            const msg = await res.text();
+            throw new Error(msg || 'فشل حذف البوست');
+          }
+
+          alert('تم حذف البوست بنجاح ✅');
+          // ممكن تحدث القائمة لو عايز
+          window.location.reload();
+        } catch (err: any) {
+          alert('حدث خطأ أثناء الحذف: ' + err.message);
+        }
+      }}
+    >
+      حذف
+    </DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>
                   </td>
 
                 <td className="p-3">
