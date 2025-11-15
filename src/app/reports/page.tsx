@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 // import Image from 'next/image';
 import * as React from 'react';
 import FilterBar, { Filters } from '../_components/FilterBar';
+import ReplyPopup from '../_components/ReplyPopup';
 
 type Report = {
   id: string;
@@ -87,7 +89,8 @@ export default function ReportsPage() {
     role: undefined,
   });
   const [loading, setLoading] = React.useState(true);
-
+const [showReplyPopup, setShowReplyPopup] = React.useState(false);
+const [selectedReport, setSelectedReport] = React.useState<Report | null>(null);
   React.useEffect(() => {
     const fetchReports = async () => {
       try {
@@ -184,7 +187,10 @@ export default function ReportsPage() {
                   </button>
                 ) : (
                   <button
-                    onClick={() => setReplied(r.id, true)}
+                    onClick={() => {
+                      setSelectedReport(r);
+                      setShowReplyPopup(true);
+                    }}
                     className="h-10 w-full mb-2 rounded-2xl bg-[#D12D2D] text-sm font-medium text-white hover:bg-[#be2525]"
                   >
                     رد
@@ -247,6 +253,15 @@ export default function ReportsPage() {
           )}
         </div>
       )}
+      <ReplyPopup
+          open={showReplyPopup}
+          onClose={() => setShowReplyPopup(false)}
+          userName={selectedReport?.userName}
+          onSubmit={(data) => {
+          console.log('🚀 تم إرسال الرد:', data);
+          // هنا تقدر تبعت POST للـAPI أو تحدث الستيت
+          }}
+        />
     </main>
   );
 }
