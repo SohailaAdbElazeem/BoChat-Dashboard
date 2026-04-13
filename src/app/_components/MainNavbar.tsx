@@ -75,6 +75,11 @@ function MainNavbar(){
                 <img src="/imgs/screen.svg" alt="not" srcSet="" />
               </a>
             </div>
+            <div className="flex items-center justify-center rounded-[23px] bg-[#D72229] py-[8px] px-[18px] relative">
+              <a href={"/add-article"}>
+                <img src="/imgs/Group 372.svg" alt="not" srcSet="" />
+              </a>
+            </div>
           </div>
 
         </div>

@@ -265,12 +265,12 @@ export default function LastLogins({
 
                   <td className="py-3 px-2">
                     <div className="relative h-9 w-9 overflow-hidden rounded-full ring-2 ring-white ">
-                      <Image
+                      {/* <Image
                         src={r.avatarUrl || '/avatar-placeholder.png'}
                         alt={r.userName}
                         fill
                         sizes="36px"
-                      />
+                      /> */}
                     </div>
                   </td>
 
