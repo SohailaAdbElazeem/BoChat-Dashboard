@@ -22,7 +22,8 @@ const handleSubmit = async (e: React.FormEvent) => {
   setSuccessMsg('');
   const URL = process.env.NEXT_PUBLIC_API_BASE
   try {
-    const response = await fetch(`${URL}/dashboard/login`, {
+    //   const response = await fetch(`${URL}/dashboard/login`,
+    const response = await fetch(`${URL}/dashboard/admins/Login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -34,17 +35,28 @@ const handleSubmit = async (e: React.FormEvent) => {
     });
 
     const data = await response.json();
-
+   console.log(data);
     if (!response.ok) {
       throw new Error(data?.message || 'بيانات الدخول غير صحيحة !');
     }
 
-    if (!data.token) {
-      throw new Error('التوكن غير موجود في الرد!');
-    }
+    // if (!data.token) {
+    //   throw new Error('التوكن غير موجود في الرد!');
+    // }
 
-    localStorage.setItem('token', data.token.accessToken);
-    localStorage.setItem('userid', data.data.userid);
+    if (!data.accessToken) {
+  throw new Error('التوكن غير موجود في الرد!');
+}
+
+    // localStorage.setItem('token', data.token.accessToken);
+    // localStorage.setItem('userid', data.data.userid);
+    if (!data.accessToken) {
+  throw new Error('التوكن غير موجود في الرد!');
+}
+
+localStorage.setItem('token', data.accessToken);
+localStorage.setItem('refreshToken', data.refreshToken);
+localStorage.setItem('userid', data.data.userid);
     setSuccessMsg('تم تسجيل الدخول بنجاح !');
 
     setTimeout(() => {
