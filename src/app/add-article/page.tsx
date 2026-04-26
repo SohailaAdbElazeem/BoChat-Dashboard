@@ -35,17 +35,16 @@ export default function AddArticlePage() {
   }, [router]);
 
   const categories = [
-    { name: "الخصوصية والأمان", count: 50 },
-    { name: "البداية السريعة", count: 10 },
-    { name: "المميزات الذكية", count: 0 },
-    { name: "تخصيص التجربة", count: 20 },
-    { name: "الحساب والإعدادات", count: 10 },
-    { name: "الدفع والاشتراكات", count: 20 },
-    { name: "برنامج السفراء", count: 20 },
-    { name: "استثمر معنا", count: 16 },
-    { name: "المطورون والمساهمون", count: 12 },
-    { name: "الأسئلة الشائعة", count: 12 },
-  ];
+  { name: "الخصوصية والأمان", ctg: 1, count: 50 },
+  { name: "البداية السريعة", ctg: 2, count: 10 },
+  { name: "المميزات الذكية", ctg: 3, count: 0 },
+  { name: "تخصيص التجربة", ctg: 4, count: 20 },
+  { name: "الحساب والإعدادات", ctg: 5, count: 10 },
+  { name: "الدفع والاشتراكات", ctg: 6, count: 20 },
+  { name: "برنامج السفراء", ctg: 7, count: 20 },
+  { name: "استثمر معنا", ctg: 8, count: 16 },
+  { name: "المطورون والمساهمون", ctg: 9, count: 12 },
+];
 
   const URL = process.env.NEXT_PUBLIC_API_BASE;
   if (!URL) {
@@ -74,13 +73,19 @@ export default function AddArticlePage() {
     }
     if (hasError) return;
 
+    const selectedCatObj = categories.find(cat => cat.name === selectedCategory);
+    if (!selectedCatObj) {
+      setCategoryError("التصنيف غير صالح");
+      return;
+    }
+
     setLoading(true);
     try {
       if (!token) {
         throw new Error("لم يتم العثور على رمز المصادقة. الرجاء تسجيل الدخول مرة أخرى.");
       }
 
-      const response = await fetch(`${URL}/dashboard/createArticle`, {
+      const response = await fetch(`${URL}/dashboard/articles/Create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -88,12 +93,10 @@ export default function AddArticlePage() {
         },
         body: JSON.stringify({
           title: title,
-          type: selectedCategory,
-          desc: content,
+          ctg: selectedCatObj.ctg,
+          content: content,
         }),
       });
-
-      console.log("Response status:", response.status);
 
       if (!response.ok) {
         let errorMsg = "فشل في إضافة المقال";
@@ -108,8 +111,12 @@ export default function AddArticlePage() {
       }
 
       showToast("تم إضافة المقال بنجاح!", "success");
-      // Redirect after a short delay – uncomment if desired
-      // setTimeout(() => router.push("/articles"), 1000);
+      // Clear بخقة
+      setTitle("");
+      setContent("");
+      setSelectedCategory("");
+      // Optionally redirect after delay
+      // setTimeout(() => router.push("/articles"), 1500);
     } catch (err: any) {
       console.error("Submit error:", err);
       showToast(err.message || "حدث خطأ أثناء إرسال البيانات", "error");
@@ -122,8 +129,7 @@ export default function AddArticlePage() {
   return (
     <div
       dir="rtl"
-        className="min-h-screen bg-white pt-20 font-[Cairo] flex 
-    flex-col items-center relative px-4 sm:px-30 md:px-20 pl-[80px] mb-20"
+      className="min-h-screen bg-white pt-20 font-[Cairo] flex flex-col items-center relative px-4 sm:px-30 md:px-20 pl-[80px] mb-20"
     >
       {/* Header */}
       <div className="w-full max-w-5xl mx-auto text-center md:text-right mb-6">
@@ -222,6 +228,7 @@ export default function AddArticlePage() {
                   >
                     <span>{cat.name}</span>
                     <span className="text-gray-400 text-xs sm:text-sm">{cat.count}</span>
+
                   </div>
                 ))}
               </div>

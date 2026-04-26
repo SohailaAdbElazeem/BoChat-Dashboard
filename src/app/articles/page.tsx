@@ -12,6 +12,10 @@ export default function AllArticlesPage() {
   const [openCategory, setOpenCategory] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalArticles, setTotalArticles] = useState(0);
+  const limit = 1000;
 
   // Filter states
   const [filterQuery, setFilterQuery] = useState("");
@@ -29,8 +33,8 @@ export default function AllArticlesPage() {
     setTimeout(() => setToast((prev) => ({ ...prev, visible: false })), 3000);
   };
 
-  const API_BASE = "https://bo-chat.space/dashboard/Articles";
-
+  const API_BASE = "https://bo-chat.space/dashboard/articles/All";
+ 
   const getAuthToken = () => localStorage.getItem("token");
 
   const authFetch = async (url, options = {}) => {
@@ -52,122 +56,200 @@ export default function AllArticlesPage() {
     }
     return response;
   };
-
-  const fetchArticles = async () => {
-    try {
-      setLoading(true);
-      const res = await authFetch(API_BASE);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      const transformed = data.response.map((item) => ({
-        id: item._id,
-        title: item.title,
-        content: item.desc,
-        type: item.type,
-        views: 0,
-        useful: 0,
-        notUseful: 0,
-        created: "منذ قليل",
-        updated: "منذ قليل",
-      }));
-      setArticles(transformed);
-      setError(null);
-    } catch (err) {
-      console.error(err);
-      if (err.message !== "Session expired. Please login again.") {
-        setError("فشل في تحميل المقالات. يرجى المحاولة مرة أخرى.");
-      }
-    } finally {
-      setLoading(false);
-    }
+const getCategoryName = (ctgNumber) => {
+  const categoryMap = {
+    1: "الخصوصية والأمان",
+    2: "البداية السريعة",
+    3: "المميزات الذكية",
+    4: "تخصيص التجربة",
+    5: "الحساب والإعدادات",
+    6: "الدفع والاشتراكات",
+    7: "برنامج السفراء",
+    8: "استثمر معنا",
+    9: "المطورون والمساهمون",
+    10: "الأسئلة الشائعة",
   };
-
+  return categoryMap[ctgNumber] || "غير مصنف";
+};
+const getCategoryNumber = (categoryName) => {
+  const map = {
+    "الخصوصية والأمان": 1,
+    "البداية السريعة": 2,
+    "المميزات الذكية": 3,
+    "تخصيص التجربة": 4,
+    "الحساب والإعدادات": 5,
+    "الدفع والاشتراكات": 6,
+    "برنامج السفراء": 7,
+    "استثمر معنا": 8,
+    "المطورون والمساهمون": 9,
+    "الأسئلة الشائعة": 10,
+  };
+  return map[categoryName] || 1;
+};
+const fetchArticles = async () => {
+  try {
+    setLoading(true);
+    const res = await authFetch(`${API_BASE}?page=${currentPage}&limit=${limit}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    console.log("API Response:", data);
+    
+    let articlesList = [];
+    let total = 0;
+    
+    if (data.success && data.response) {
+      articlesList = data.response.map((item) => {
+         let categoryName = item.type;
+        if (!categoryName && item.ctg) {
+          categoryName = getCategoryName(item.ctg);
+        } else if (!categoryName) {
+          categoryName = "غير محدد";
+        }
+        return {
+          id: item._id,
+          title: item.title,
+          content: item.desc || item.content,
+          type: categoryName, 
+          views: item.viewsCount || 0,
+          useful: item.usefulCount || 0,
+          notUseful: item.unusefulCount || 0,
+          created: item.createdAt ? new Date(item.createdAt).toLocaleDateString('ar-EG') : "منذ قليل",
+          updated: item.lastUpdate ? new Date(item.lastUpdate).toLocaleDateString('ar-EG') : "منذ قليل",
+        };
+      });
+      total = data.total || articlesList.length;
+    } else if (Array.isArray(data)) {
+      articlesList = data.map((item) => {
+        let categoryName = item.type;
+        if (!categoryName && item.ctg) {
+          categoryName = getCategoryName(item.ctg);
+        } else if (!categoryName) {
+          categoryName = "غير محدد";
+        }
+        return {
+          id: item._id,
+          title: item.title,
+          content: item.desc || item.content,
+          type: categoryName,
+          views: item.viewsCount || 0,
+          useful: item.usefulCount || 0,
+          notUseful: item.unusefulCount || 0,
+          created: item.createdAt ? new Date(item.createdAt).toLocaleDateString('ar-EG') : "منذ قليل",
+          updated: item.lastUpdate ? new Date(item.lastUpdate).toLocaleDateString('ar-EG') : "منذ قليل",
+        };
+      });
+      total = articlesList.length;
+    } else {
+      throw new Error("Unexpected API response structure");
+    }
+    
+    setArticles(articlesList);
+    setTotalArticles(total);
+    setTotalPages(Math.ceil(total / limit));
+    setError(null);
+  } catch (err) {
+    console.error(err);
+    if (err.message !== "Session expired. Please login again.") {
+      setError("فشل في تحميل المقالات. يرجى المحاولة مرة أخرى.");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
   useEffect(() => {
     fetchArticles();
-  }, []);
+  }, [currentPage]);
 
   // Filter logic with all six criteria
   const filteredArticles = articles.filter((article) => {
-    // Text search (title or content)
     const matchesQuery =
       filterQuery === "" ||
       article.title.includes(filterQuery) ||
       article.content.includes(filterQuery);
 
-    // Type filter
     const matchesType = filterType === "" || article.type === filterType;
 
-    // Minimum views
     const matchesViews = minViews === "" || article.views >= parseInt(minViews);
 
-    // Minimum useful
     const matchesUseful = minUseful === "" || article.useful >= parseInt(minUseful);
 
-    // Minimum not useful
     const matchesNotUseful = minNotUseful === "" || article.notUseful >= parseInt(minNotUseful);
 
-    // Created since filter (based on the string values)
     let matchesCreated = true;
     if (createdSince !== "") {
-      const createdText = article.created;
-      if (createdSince === "day") matchesCreated = createdText === "منذ قليل";
-      else if (createdSince === "week") matchesCreated = createdText === "منذ أسبوع";
-      else if (createdSince === "month") matchesCreated = createdText === "منذ شهر";
-      else if (createdSince === "year") matchesCreated = createdText === "منذ سنة";
+      const createdDate = new Date(article.created);
+      const now = new Date();
+      const diffDays = Math.floor((now - createdDate) / (1000 * 60 * 60 * 24));
+      if (createdSince === "day") matchesCreated = diffDays <= 1;
+      else if (createdSince === "week") matchesCreated = diffDays <= 7;
+      else if (createdSince === "month") matchesCreated = diffDays <= 30;
+      else if (createdSince === "year") matchesCreated = diffDays <= 365;
     }
 
     return matchesQuery && matchesType && matchesViews && matchesUseful && matchesNotUseful && matchesCreated;
   });
 
-  const handleDelete = async (id) => {
-    if (!confirm("هل أنت متأكد من حذف هذا المقال؟")) return;
-    try {
-      const res = await authFetch("https://bo-chat.space/dashboard/deleteArticle", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ articleid: id }),
-      });
-      if (!res.ok) throw new Error("Delete failed");
-      setArticles((prev) => prev.filter((article) => article.id !== id));
-      showToast("تم حذف المقال بنجاح", "success");
-    } catch (err) {
-      console.error(err);
-      showToast("فشل حذف المقال. حاول مرة أخرى.", "error");
-    }
-  };
+   
+  const handleDelete = async (id: string) => {
+  if (!confirm("هل أنت متأكد من حذف هذا المقال؟")) return;
 
+  try {
+    const response = await authFetch(
+      `https://bo-chat.space/dashboard/articles/Delete?articleid=${id}`,
+      { method: "DELETE" }
+    );
+
+    if (!response.ok) {
+       const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Delete failed: ${response.status}`);
+    }
+
+     setArticles((prev) => prev.filter((article) => article.id !== id));
+    showToast("تم حذف المقال بنجاح", "success");
+      } catch (err) {
+    console.error("Delete error:", err);
+    showToast(`فشل حذف المقال: ${err instanceof Error ? err.message : 'حاول مرة أخرى'}`, "error");
+  }
+};
   const handleOpenUpdate = (article) => {
     setSelectedArticle({ ...article });
     setIsModalOpen(true);
   };
-
-  const handleUpdate = async () => {
-    if (!selectedArticle) return;
-    try {
-      const payload = {
-        articleid: selectedArticle.id,
-        title: selectedArticle.title,
-        desc: selectedArticle.content,
-        type: selectedArticle.type,
-      };
-      const res = await authFetch("https://bo-chat.space/dashboard/createArticle", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error("Update failed");
-      setArticles((prev) =>
-        prev.map((a) => (a.id === selectedArticle.id ? selectedArticle : a))
-      );
-      setIsModalOpen(false);
-      setSelectedArticle(null);
-      showToast("تم تحديث المقال بنجاح", "success");
-    } catch (err) {
-      console.error(err);
-      showToast("فشل تحديث المقال. حاول مرة أخرى.", "error");
+ 
+const handleUpdate = async () => {
+  if (!selectedArticle) return;
+  try {
+    const ctgNumber = getCategoryName(selectedArticle.type);
+    const payload = {
+      articleid: selectedArticle.id,
+      title: selectedArticle.title,
+      ctg: ctgNumber,
+      content: selectedArticle.content,
+    };
+    const res = await authFetch("https://bo-chat.space/dashboard/articles/Update", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      let errorMsg = "Update failed";
+      try {
+         const errData = await res.json();
+        errorMsg = errData.message || errorMsg;
+      } catch(e) {}
+      throw new Error(errorMsg);
     }
-  };
-
+    setArticles((prev) =>
+      prev.map((a) => (a.id === selectedArticle.id ? selectedArticle : a))
+    );
+    setIsModalOpen(false);
+    setSelectedArticle(null);
+    showToast("تم تحديث المقال بنجاح", "success");
+  } catch (err) {
+    console.error(err);
+    showToast(`فشل تحديث المقال: ${err.message}`, "error");
+  }
+}
   const categories = [
     { name: "الخصوصية والأمان" },
     { name: "البداية السريعة" },
@@ -181,7 +263,16 @@ export default function AllArticlesPage() {
     { name: "الأسئلة الشائعة" },
   ];
 
-  if (loading) {
+  // Pagination controls
+  const handlePreviousPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  if (loading && articles.length === 0) {
     return (
       <div dir="rtl" className="min-h-screen bg-white pt-20 font-[Cairo] flex items-center justify-center">
         <div className="text-center">
@@ -359,6 +450,37 @@ export default function AllArticlesPage() {
           })
         )}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-8 mb-6">
+          <button
+            onClick={handlePreviousPage}
+            disabled={currentPage === 1}
+            className={`px-4 py-2 rounded-lg ${
+              currentPage === 1
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-[#D72229] text-white hover:bg-red-700"
+            }`}
+          >
+            السابق
+          </button>
+          <span className="text-[#8989A2]">
+            صفحة {currentPage} من {totalPages}
+          </span>
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            className={`px-4 py-2 rounded-lg ${
+              currentPage === totalPages
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-[#D72229] text-white hover:bg-red-700"
+            }`}
+          >
+            التالي
+          </button>
+        </div>
+      )}
 
       {/* Update Modal */}
       {isModalOpen && selectedArticle && (
