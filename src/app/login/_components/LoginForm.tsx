@@ -23,7 +23,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   const URL = process.env.NEXT_PUBLIC_API_BASE
   try {
     //   const response = await fetch(`${URL}/dashboard/login`,
-    const response = await fetch(`${URL}/dashboard/admins/Login`, {
+    const response = await fetch(`${URL}/dashboard/admin/Login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
