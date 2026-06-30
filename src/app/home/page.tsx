@@ -65,8 +65,9 @@ function toGrowthSeries(res: LoginStatsResponse) {
 function MainPage() {
   // ===== Const config =====
   const duration = 'allTime';
-  const apiUrl = 'https://bo-chat.space/totalStatistics';
-  const loginStatsUrl = 'http://bo-chat.space/logInStatistics'; // نفس الشكل اللي انت بعته
+  // const apiUrl = 'https://bo-chat.space/totalStatistics';
+  const apiUrl = 'https://bo-chat.space/dashboard/features/TotalStatistics';
+  const loginStatsUrl = 'https://bo-chat.space/features/LogInStatistics'; // نفس الشكل اللي انت بعته
   const tokenKey = 'token';
 
   // ===== State =====
@@ -179,7 +180,7 @@ function MainPage() {
             className="mb-2"
           />
           <CustomChart
-            apiUrl="http://bo-chat.space/reactStatistics"
+            apiUrl="https://bo-chat.space/reactStatistics"
             tokenKey={tokenKey}
             staticData1={fakeData}
             staticData2={fakeData}
