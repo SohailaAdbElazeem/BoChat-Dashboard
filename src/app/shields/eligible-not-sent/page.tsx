@@ -6,7 +6,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import FilterBar, { Filters } from '@/app/_components/FilterBar';
-const adminId = localStorage.getItem("userid")
+// const adminId = localStorage.getItem("userid")
 
 /* ================= أنواع البيانات ================= */
 type ShieldStatus = 'pending' | 'approved' | 'rejected' | 'charged' | 'awaiting-charge';
@@ -179,6 +179,13 @@ export default function ShieldRequestsPage() {
 
   const API_BASE =process.env.NEXT_PUBLIC_API_BASE 
 
+  const [adminId, setAdminId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const id = localStorage.getItem("userid");
+    setAdminId(id);
+  }, []);
+
 
   useEffect(() => {
     let alive = true;
@@ -186,6 +193,11 @@ export default function ShieldRequestsPage() {
       try {
         setLoading(true);
         setError('');
+        // const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        // if (!token) throw new Error('لا يوجد توكن في المتصفح. من فضلك سجّل الدخول.');
+        // if (!adminId) return;
+       if (!adminId) return;
+
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
         if (!token) throw new Error('لا يوجد توكن في المتصفح. من فضلك سجّل الدخول.');
         const url =`${API_BASE}/request/shields/${adminId}`;
@@ -242,7 +254,7 @@ export default function ShieldRequestsPage() {
     return () => {
       alive = false;
     };
-  }, []); // run once
+  }, [adminId]); // run once
 
   // تحويل للـ FilterBar
   const registrationRows: RegistrationRow[] = useMemo(
