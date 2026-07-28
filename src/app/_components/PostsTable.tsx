@@ -1,4 +1,4 @@
-'use client';
+ 'use client';
 
 import Image from 'next/image';
 import { useState } from 'react';
@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 type Props = { rows: RegistrationRow[] };
 
 export default function RegistrationsTable({ rows }: Props) {
@@ -43,7 +44,7 @@ export default function RegistrationsTable({ rows }: Props) {
               <th className="p-3">تعليقات</th>
               <th className="p-3">إعجابات</th>
               <th className="p-3">نشر البوست</th>
-              {rows?.status ? <th className="p-3">الحالة</th>:""}
+              {rows?.[0]?.status !== undefined ? <th className="p-3">الحالة</th> : ""}
               <th className="p-3">id</th>
               <th className="p-3">اسم المستخدم</th>
               <th className="p-3">صورة</th>
@@ -53,84 +54,83 @@ export default function RegistrationsTable({ rows }: Props) {
           <tbody>
             {rows.map((r) => (
               <tr key={r.no} className="border-t text-sm hover:bg-[#fafafa]">
+                {/* 1. الإجراءات */}
                 <td className="py-3 px-2 text-center">
                   <DropdownMenu>
-  <DropdownMenuTrigger asChild>
-    <button
-      type="button"
-      className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-gray-100 focus:outline-none"
-      aria-label="إجراءات"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <MoreVertical className="h-4 w-4 text-gray-600" />
-    </button>
-  </DropdownMenuTrigger>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        type="button"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-gray-100 focus:outline-none"
+                        aria-label="إجراءات"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <MoreVertical className="h-4 w-4 text-gray-600" />
+                      </button>
+                    </DropdownMenuTrigger>
 
-  <DropdownMenuContent align="center" className="min-w-[140px] rounded-[15px]">
-    {/* زر الحظر */}
-    <DropdownMenuItem
-      className="cursor-pointer text-[16px] text-rose-700 rounded-[10px] p-[10px] flex items-center justify-center"
-      onClick={(e) => {
-        e.stopPropagation();
-        router.push(`/banned-users?userid=${encodeURIComponent(r.id)}`);
-      }}
-    >
-      حظر
-    </DropdownMenuItem>
+                    <DropdownMenuContent align="center" className="min-w-[140px] rounded-[15px]">
+                      <DropdownMenuItem
+                        className="cursor-pointer text-[16px] text-rose-700 rounded-[10px] p-[10px] flex items-center justify-center"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/banned-users?userid=${encodeURIComponent(r.id)}`);
+                        }}
+                      >
+                        حظر
+                      </DropdownMenuItem>
 
-    {/* زر الحذف */}
-    <DropdownMenuItem
-      className="cursor-pointer text-[16px] text-red-600 rounded-[10px] p-[10px] flex items-center justify-center"
-      onClick={async (e) => {
-        e.stopPropagation();
+                      <DropdownMenuItem
+                        className="cursor-pointer text-[16px] text-red-600 rounded-[10px] p-[10px] flex items-center justify-center"
+                        onClick={async (e) => {
+                          e.stopPropagation();
 
-        const confirmDelete = window.confirm('هل أنت متأكد من حذف هذا البوست؟');
-        if (!confirmDelete) return;
+                          const confirmDelete = window.confirm('هل أنت متأكد من حذف هذا البوست؟');
+                          if (!confirmDelete) return;
 
-        const token =
-          localStorage.getItem('token') ||
-          localStorage.getItem('auth_token') ||
-          '';
+                          const token =
+                            localStorage.getItem('token') ||
+                            localStorage.getItem('auth_token') ||
+                            '';
 
-        if (!token) {
-          alert('لا يوجد توكن في المتصفح');
-          return;
-        }
+                          if (!token) {
+                            alert('لا يوجد توكن في المتصفح');
+                            return;
+                          }
 
-        try {
-          const res = await fetch(`http://bo-chat.space/dashboard/posts/${r.id}`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-          });
+                          try {
+                            const res = await fetch(`https://bo-chat.space/dashboard/posts/${r.id}`, {
+                              method: 'DELETE',
+                              headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: `Bearer ${token}`,
+                              },
+                            });
 
-          if (!res.ok) {
-            const msg = await res.text();
-            throw new Error(msg || 'فشل حذف البوست');
-          }
+                            if (!res.ok) {
+                              const msg = await res.text();
+                              throw new Error(msg || 'فشل حذف البوست');
+                            }
 
-          alert('تم حذف البوست بنجاح ✅');
-          // ممكن تحدث القائمة لو عايز
-          window.location.reload();
-        } catch (err: any) {
-          alert('حدث خطأ أثناء الحذف: ' + err.message);
-        }
-      }}
-    >
-      حذف
-    </DropdownMenuItem>
-  </DropdownMenuContent>
-</DropdownMenu>
-                  </td>
+                            alert('تم حذف البوست بنجاح ✅');
+                            window.location.reload();
+                          } catch (err: any) {
+                            alert('حدث خطأ أثناء الحذف: ' + err.message);
+                          }
+                        }}
+                      >
+                        حذف
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </td>
 
+                {/* 2. صورة البوست */}
                 <td className="p-3">
                   <div className="flex flex-wrap gap-1">
                     {r.postImages?.length ? (
                       r.postImages.slice(0, 6).map((src: string | StaticImport, i: number) => (
                         <button
-                          key={ i}
+                          key={i}
                           className="relative h-6 w-6 overflow-hidden rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                           onClick={() => openLightbox(r.postImages, i)}
                           aria-label="عرض الصورة"
@@ -145,35 +145,54 @@ export default function RegistrationsTable({ rows }: Props) {
                   </div>
                 </td>
 
+                {/* 3. نوع النشر */}
                 <td className="p-3">{r.postType}</td>
+
+                {/* 4. المشاهدات */}
                 <td className="p-3">{r.views}</td>
+
+                {/* 5. تعليقات */}
                 <td className="p-3">{r.comments}</td>
+
+                {/* 6. إعجابات */}
                 <td className="p-3">{r.likes}</td>
+
+                {/* 7. نشر البوست */}
                 <td className="p-3">{r.publishedAgo}</td>
-              {r.status ? 
-                <td className="p-3">
-                  <span
-                    className={[
-                      'rounded-full px-3 py-1 text-xs',
-                      r.status === 'نشط'
-                        ? 'bg-[#E7F7EE] text-[#1B8A5A]'
-                        : r.status === 'محظور'
-                        ? 'bg-[#FDECEE] text-[#D72229]'
-                        : 'bg-[#FFF7E6] text-[#B96A00]',
-                    ].join(' ')}
-                  >
-                    {r.status}
-                  </span>
-                </td>
-              :""}
+
+                {/* 8. الحالة */}
+                {r.status ? (
+                  <td className="p-3">
+                    <span
+                      className={[
+                        'rounded-full px-3 py-1 text-xs',
+                        r.status === 'نشط'
+                          ? 'bg-[#E7F7EE] text-[#1B8A5A]'
+                          : r.status === 'محظور'
+                          ? 'bg-[#FDECEE] text-[#D72229]'
+                          : 'bg-[#FFF7E6] text-[#B96A00]',
+                      ].join(' ')}
+                    >
+                      {r.status}
+                    </span>
+                  </td>
+                ) : null}
+
+                {/* 9. id */}
                 <td className="p-3">{r.id}</td>
+
+                {/* 10. اسم المستخدم */}
                 <td className="p-3">{r.userName}</td>
-                <td className="p-3 flex items-center justify-center ">
-                  <div className="relative h-8 w-8 overflow-hidden rounded-full ">
+
+                {/* 11. صورة المستخدم */}
+                <td className="p-3 flex items-center justify-center">
+                  <div className="relative h-8 w-8 overflow-hidden rounded-full">
                     <Image src={r.avatar} alt={r.userName} fill className="object-cover" />
                   </div>
                 </td>
-                <td className="p-3">{r.no}</td>
+
+                {/* 12. الرقم التسلسلي (no) */}
+                <td className="p-3 font-semibold">{r.no}</td>
               </tr>
             ))}
           </tbody>
