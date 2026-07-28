@@ -7,7 +7,8 @@ const nextConfig = {
       'lh3.googleusercontent.com',
       'bo-chat.space',
       'bo-chat.cfd',
-      "platform-lookaside.fbsbx.com"
+      "platform-lookaside.fbsbx.com",
+       "ui-avatars.com"
     ],
   },
   typescript: {
