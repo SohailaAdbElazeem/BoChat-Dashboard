@@ -12,7 +12,7 @@ export default function LoginPage() {
         <nav className="container px-4 sm:px-8 md:px-16 mx-auto flex items-center justify-between">
             <a href="/">
             <img src="/bo-chat.svg" alt="Bo Chat" className="mb-1" />
-            <img src="/dashboard.svg" alt="Dashboard" />
+            <img src="/DASHBOARD.svg" alt="Dashboard" />
             </a>
 
             <ThemeToggle />
