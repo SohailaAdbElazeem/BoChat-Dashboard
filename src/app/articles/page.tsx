@@ -216,32 +216,82 @@ const fetchArticles = async () => {
     setIsModalOpen(true);
   };
  
+// const handleUpdate = async () => {
+//   if (!selectedArticle) return;
+//   try {
+//     // استخدم getCategoryNumber بدلاً من getCategoryName
+//     const ctgNumber = getCategoryNumber(selectedArticle.type);
+//     const payload = {
+//       articleid: selectedArticle.id,
+//       title: selectedArticle.title,
+//       ctg: ctgNumber, // هذا يجب أن يكون رقمًا وليس اسمًا
+//       content: selectedArticle.content,
+//     };
+    
+//     console.log("Sending payload:", payload); // للتأكد من البيانات
+    
+//     const res = await authFetch("https://bo-chat.space/dashboard/articles/Update", {
+//       method: "PUT",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify(payload),
+//     });
+    
+//     if (!res.ok) {
+//       let errorMsg = "Update failed";
+//       try {
+//         const errData = await res.json();
+//         errorMsg = errData.message || errorMsg;
+//       } catch(e) {}
+//       throw new Error(errorMsg);
+//     }
+    
+//     const result = await res.json();
+//     console.log("Update response:", result); // للتأكد من الاستجابة
+    
+//     setArticles((prev) =>
+//       prev.map((a) => (a.id === selectedArticle.id ? selectedArticle : a))
+//     );
+//     setIsModalOpen(false);
+//     setSelectedArticle(null);
+//     showToast("تم تحديث المقال بنجاح", "success");
+//   } catch (err) {
+//     console.error(err);
+//     showToast(`فشل تحديث المقال: ${err.message}`, "error");
+//   }
+// }
 const handleUpdate = async () => {
   if (!selectedArticle) return;
   try {
-    const ctgNumber = getCategoryName(selectedArticle.type);
+    const ctgNumber = getCategoryNumber(selectedArticle.type);
     const payload = {
       articleid: selectedArticle.id,
       title: selectedArticle.title,
       ctg: ctgNumber,
       content: selectedArticle.content,
     };
+    
+    console.log("Sending payload:", payload);
+    
     const res = await authFetch("https://bo-chat.space/dashboard/articles/Update", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
+    
     if (!res.ok) {
       let errorMsg = "Update failed";
       try {
-         const errData = await res.json();
+        const errData = await res.json();
         errorMsg = errData.message || errorMsg;
       } catch(e) {}
       throw new Error(errorMsg);
     }
-    setArticles((prev) =>
-      prev.map((a) => (a.id === selectedArticle.id ? selectedArticle : a))
-    );
+    
+    const result = await res.json();
+    console.log("Update response:", result);
+    
+     await fetchArticles();
+    
     setIsModalOpen(false);
     setSelectedArticle(null);
     showToast("تم تحديث المقال بنجاح", "success");
@@ -250,6 +300,7 @@ const handleUpdate = async () => {
     showToast(`فشل تحديث المقال: ${err.message}`, "error");
   }
 }
+
   const categories = [
     { name: "الخصوصية والأمان" },
     { name: "البداية السريعة" },
