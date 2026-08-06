@@ -468,8 +468,8 @@ const handleUpdate = async () => {
                 {/* Metadata */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:flex lg:flex-col gap-1 text-[12px] text-[#8989A2] text-right px-2 sm:px-4 w-full lg:w-[20%]">
                   <span>المشاهدات: {article.views}</span>
-                  <span>مفيد: {article.useful}</span>
-                  <span>غير مفيد: {article.notUseful}</span>
+                  {/* <span>مفيد: {article.useful}</span> */}
+                  {/* <span>غير مفيد: {article.notUseful}</span> */}
                   <span>نوع المقال: {article.type}</span>
                   <span>تمت الإضافة: {article.created}</span>
                   <span>آخر تحديث: {article.updated}</span>
